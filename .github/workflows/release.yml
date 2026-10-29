@@ -124,7 +124,7 @@ jobs:
             ./polymarket-toolkits run copy-trading
             ```
 
-            Or build from source: `cargo install --git https://github.com/HarrierOnChain/Prediction-Markets-Trading-Bot-Toolkits`
+            Or build from source: `cargo install --git https://github.com/tarpboi/Prediction-Markets-Trading-Bot-Toolkits`
 
             ## Before you trade
 

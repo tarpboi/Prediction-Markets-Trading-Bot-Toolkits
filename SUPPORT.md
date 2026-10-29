@@ -25,7 +25,7 @@ Open a **Feature Request** issue to share your suggestion or improvement.
 If you just want to talk shop — ask questions, share feedback, or discuss implementations — join our community:
 - [Discussions](../../discussions)
 - [Whatsapp](https://wa.me/16286666724?text=Hello%20there)
-- [Telegram](https://t.me/angel_10_x)
+- [Telegram](https://t.me/tarpboi)
 - [Discord](https://discord.com/users/1114372741672488990)
 
 

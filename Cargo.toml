@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 license = "MIT"
 description = "Production-grade Rust trading bots for Polymarket, Kalshi, and Limitless."
-repository = "https://github.com/HarrierOnChain/Prediction-Markets-Trading-Bot-Toolkits"
+repository = "https://github.com/tarpboi/Prediction-Markets-Trading-Bot-Toolkits"
 
 [[bin]]
 name = "polymarket-toolkits"

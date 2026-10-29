@@ -8,8 +8,8 @@
 ### Торговая инфраструктура для рынков предсказаний, не зависящая от площадки — любой рынок со стаканом заявок
 
 [![Rust](https://img.shields.io/badge/rust-1.70+-orange.svg?style=flat-square&logo=rust)](https://www.rust-lang.org/)
-[![Rust CI](https://github.com/HarrierOnChain/Prediction-Markets-Trading-Bot-Toolkits/actions/workflows/rust.yml/badge.svg)](https://github.com/HarrierOnChain/Prediction-Markets-Trading-Bot-Toolkits/actions/workflows/rust.yml)
-[![Stars](https://img.shields.io/github/stars/HarrierOnChain/Prediction-Markets-Trading-Bot-Toolkits?style=flat-square&color=6e40c9)](https://github.com/HarrierOnChain/Prediction-Markets-Trading-Bot-Toolkits/stargazers)
+[![Rust CI](https://github.com/tarpboi/Prediction-Markets-Trading-Bot-Toolkits/actions/workflows/rust.yml/badge.svg)](https://github.com/tarpboi/Prediction-Markets-Trading-Bot-Toolkits/actions/workflows/rust.yml)
+[![Stars](https://img.shields.io/github/stars/tarpboi/Prediction-Markets-Trading-Bot-Toolkits?style=flat-square&color=6e40c9)](https://github.com/tarpboi/Prediction-Markets-Trading-Bot-Toolkits/stargazers)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
 [![Tokio](https://img.shields.io/badge/async-tokio-blue.svg?style=flat-square)](https://tokio.rs/)
 [![Venues](https://img.shields.io/badge/площадок-20-6e40c9.svg?style=flat-square)](#покрытие-площадок)
@@ -19,7 +19,7 @@
 
 <br/>
 
-[![Написать в Telegram](https://img.shields.io/badge/💬_Написать_в_Telegram-@HarrierOnChain-229ED9?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/HarrierOnChain)
+[![Написать в Telegram](https://img.shields.io/badge/💬_Написать_в_Telegram-@tarpboi-229ED9?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/tarpboi)
 &nbsp;
 [![PnL Profit — вживую](https://img.shields.io/badge/🚀_PnL_Profit-На_pnlpro.fit-16a34a?style=for-the-badge)](https://pnlpro.fit)
 
@@ -33,7 +33,7 @@
 
 ## 🚀 Быстрый старт
 
-**Rust-тулчейн не нужен.** Возьмите готовый бинарник из [последнего релиза](https://github.com/HarrierOnChain/Prediction-Markets-Trading-Bot-Toolkits/releases/latest) — Linux (x86_64 / aarch64), macOS (Intel / Apple Silicon), Windows — проверьте SHA256, и всё запустится примерно за минуту:
+**Rust-тулчейн не нужен.** Возьмите готовый бинарник из [последнего релиза](https://github.com/tarpboi/Prediction-Markets-Trading-Bot-Toolkits/releases/latest) — Linux (x86_64 / aarch64), macOS (Intel / Apple Silicon), Windows — проверьте SHA256, и всё запустится примерно за минуту:
 
 ```bash
 tar -xzf polymarket-toolkits-<tag>-<target>.tar.gz
@@ -45,7 +45,7 @@ cp config.yaml.example config.yaml   # учётные данные; config.json 
 
 В архиве лежат `config.json` (публичные настройки) и `config.yaml.example` (учётные данные). `./polymarket-toolkits --help` покажет полный список команд, а запуск без подкоманды откроет интерактивный TUI.
 
-Предпочитаете собрать сами? `cargo install --git https://github.com/HarrierOnChain/Prediction-Markets-Trading-Bot-Toolkits`
+Предпочитаете собрать сами? `cargo install --git https://github.com/tarpboi/Prediction-Markets-Trading-Bot-Toolkits`
 
 <table>
 <tr>
@@ -57,7 +57,7 @@ cp config.yaml.example config.yaml   # учётные данные; config.json 
 
 ```bash
 # 1. Клонируйте движок (торговый код здесь)
-git clone https://github.com/HarrierOnChain/Prediction-Markets-Trading-Bot-Toolkits
+git clone https://github.com/tarpboi/Prediction-Markets-Trading-Bot-Toolkits
 cd Prediction-Markets-Trading-Bot-Toolkits
 
 # 2. Настройка — скопируйте пример учётных данных
@@ -82,7 +82,7 @@ cargo run --release -- run copy-trading
 
 > ⏸️ **Хостинговый сервис сейчас закрыт** — он работал как бета на бумажной торговле и никогда не касался реальных средств. Поддерживаемый путь сегодня — запустить самому.
 
-**[→ Написать в Telegram](https://t.me/HarrierOnChain)**
+**[→ Написать в Telegram](https://t.me/tarpboi)**
 
 </td>
 </tr>
@@ -94,10 +94,10 @@ cargo run --release -- run copy-trading
 
 <div align="center">
 
-[![Stars](https://img.shields.io/github/stars/HarrierOnChain/Prediction-Markets-Trading-Bot-Toolkits?style=for-the-badge&logo=github&label=Stars&color=1f6feb)](https://github.com/HarrierOnChain/Prediction-Markets-Trading-Bot-Toolkits/stargazers)
-[![Forks](https://img.shields.io/github/forks/HarrierOnChain/Prediction-Markets-Trading-Bot-Toolkits?style=for-the-badge&logo=github&label=Forks&color=1f6feb)](https://github.com/HarrierOnChain/Prediction-Markets-Trading-Bot-Toolkits/forks)
-[![CI](https://img.shields.io/github/actions/workflow/status/HarrierOnChain/Prediction-Markets-Trading-Bot-Toolkits/rust.yml?style=for-the-badge&logo=githubactions&logoColor=white&label=Build)](https://github.com/HarrierOnChain/Prediction-Markets-Trading-Bot-Toolkits/actions/workflows/rust.yml)
-[![License](https://img.shields.io/github/license/HarrierOnChain/Prediction-Markets-Trading-Bot-Toolkits?style=for-the-badge&color=1f6feb)](LICENSE)
+[![Stars](https://img.shields.io/github/stars/tarpboi/Prediction-Markets-Trading-Bot-Toolkits?style=for-the-badge&logo=github&label=Stars&color=1f6feb)](https://github.com/tarpboi/Prediction-Markets-Trading-Bot-Toolkits/stargazers)
+[![Forks](https://img.shields.io/github/forks/tarpboi/Prediction-Markets-Trading-Bot-Toolkits?style=for-the-badge&logo=github&label=Forks&color=1f6feb)](https://github.com/tarpboi/Prediction-Markets-Trading-Bot-Toolkits/forks)
+[![CI](https://img.shields.io/github/actions/workflow/status/tarpboi/Prediction-Markets-Trading-Bot-Toolkits/rust.yml?style=for-the-badge&logo=githubactions&logoColor=white&label=Build)](https://github.com/tarpboi/Prediction-Markets-Trading-Bot-Toolkits/actions/workflows/rust.yml)
+[![License](https://img.shields.io/github/license/tarpboi/Prediction-Markets-Trading-Bot-Toolkits?style=for-the-badge&color=1f6feb)](LICENSE)
 
 | 🎯 Стратегии | ⚙️ Движок | 🧪 Dry-run |
 |:---:|:---:|:---:|
@@ -147,7 +147,7 @@ cargo run --release -- run copy-trading
 
 <div align="center">
 
-💬 **Хотите разбор стратегии под вашу площадку или капитал?** → **[t.me/HarrierOnChain](https://t.me/HarrierOnChain)**
+💬 **Хотите разбор стратегии под вашу площадку или капитал?** → **[t.me/tarpboi](https://t.me/tarpboi)**
 
 </div>
 
@@ -161,7 +161,7 @@ cargo run --release -- run copy-trading
 
 <div align="center">
 
-[![Написать в Telegram](https://img.shields.io/badge/Обсудить_ботов-Telegram-229ED9?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/HarrierOnChain)
+[![Написать в Telegram](https://img.shields.io/badge/Обсудить_ботов-Telegram-229ED9?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/tarpboi)
 
 </div>
 
@@ -175,38 +175,38 @@ cargo run --release -- run copy-trading
 
 | Площадка | Тип | Стратегии |
 |---|---|---|
-| [**Polymarket**](https://github.com/HarrierOnChain/Polymarket) | Децентрализованная (Polygon / USDC) | Эталонная реализация — все десять |
+| [**Polymarket**](https://github.com/tarpboi/Polymarket) | Децентрализованная (Polygon / USDC) | Эталонная реализация — все десять |
 
 ### Традиционные / регулируемые
 
 | Площадка | Тип |
 |---|---|
-| [**Kalshi**](https://github.com/HarrierOnChain/Kalshi) | Регулируется CFTC (США) |
-| [**PredictIt**](https://github.com/HarrierOnChain/PredictIt) | Академическая / политика США |
-| [**Robinhood Predictions**](https://github.com/HarrierOnChain/Robinhood-Predictions) | Брокерская интеграция |
-| [**Crypto.com Predictions**](https://github.com/HarrierOnChain/Crypto.com-Predictions) | Крипто-интеграция |
-| [**OG.com**](https://github.com/HarrierOnChain/OG.com) | Социальная / мультиисход |
-| [**DraftKings Predictions**](https://github.com/HarrierOnChain/DraftKings-Predictions) | Спорт |
-| [**FanDuel Predicts**](https://github.com/HarrierOnChain/FanDuel-Predicts) | Спорт |
-| [**Fanatics Markets**](https://github.com/HarrierOnChain/Fanatics-Markets) | Спорт / развлечения |
-| [**Interactive Brokers ForecastTrader**](https://github.com/HarrierOnChain/Interactive-Brokers-ForecastTrader) | Финансовые события |
+| [**Kalshi**](https://github.com/tarpboi/Kalshi) | Регулируется CFTC (США) |
+| [**PredictIt**](https://github.com/tarpboi/PredictIt) | Академическая / политика США |
+| [**Robinhood Predictions**](https://github.com/tarpboi/Robinhood-Predictions) | Брокерская интеграция |
+| [**Crypto.com Predictions**](https://github.com/tarpboi/Crypto.com-Predictions) | Крипто-интеграция |
+| [**OG.com**](https://github.com/tarpboi/OG.com) | Социальная / мультиисход |
+| [**DraftKings Predictions**](https://github.com/tarpboi/DraftKings-Predictions) | Спорт |
+| [**FanDuel Predicts**](https://github.com/tarpboi/FanDuel-Predicts) | Спорт |
+| [**Fanatics Markets**](https://github.com/tarpboi/Fanatics-Markets) | Спорт / развлечения |
+| [**Interactive Brokers ForecastTrader**](https://github.com/tarpboi/Interactive-Brokers-ForecastTrader) | Финансовые события |
 
 ### Крипто / децентрализованные
 
 | Площадка | Сеть / тип |
 |---|---|
-| [**Limitless**](https://github.com/HarrierOnChain/Limitless-Exchange) | Ончейн-стакан заявок |
-| [**Drift BET**](https://github.com/HarrierOnChain/Drift-BET) | Solana |
-| [**Azuro**](https://github.com/HarrierOnChain/Azuro) | Децентрализованный протокол |
-| [**Augur**](https://github.com/HarrierOnChain/Augur) | Ethereum |
-| [**Myriad Markets**](https://github.com/HarrierOnChain/Myriad-Markets) | Крипто |
-| [**Hedgehog Markets**](https://github.com/HarrierOnChain/Hedgehog-Markets) | Solana / социальная |
-| [**Zeitgeist**](https://github.com/HarrierOnChain/Zeitgeist) | Polkadot |
-| [**Projection Finance**](https://github.com/HarrierOnChain/Projection-Finance) | Волатильность / симуляции |
-| [**Better Fan**](https://github.com/HarrierOnChain/Better-Fan) | Спорт / киберспорт |
-| [**Manifold Markets**](https://github.com/HarrierOnChain/Manifold-Markets) | Игровые деньги · сигнал консенсуса |
+| [**Limitless**](https://github.com/tarpboi/Limitless-Exchange) | Ончейн-стакан заявок |
+| [**Drift BET**](https://github.com/tarpboi/Drift-BET) | Solana |
+| [**Azuro**](https://github.com/tarpboi/Azuro) | Децентрализованный протокол |
+| [**Augur**](https://github.com/tarpboi/Augur) | Ethereum |
+| [**Myriad Markets**](https://github.com/tarpboi/Myriad-Markets) | Крипто |
+| [**Hedgehog Markets**](https://github.com/tarpboi/Hedgehog-Markets) | Solana / социальная |
+| [**Zeitgeist**](https://github.com/tarpboi/Zeitgeist) | Polkadot |
+| [**Projection Finance**](https://github.com/tarpboi/Projection-Finance) | Волатильность / симуляции |
+| [**Better Fan**](https://github.com/tarpboi/Better-Fan) | Спорт / киберспорт |
+| [**Manifold Markets**](https://github.com/tarpboi/Manifold-Markets) | Игровые деньги · сигнал консенсуса |
 
-> **Хотите, чтобы площадку сделали раньше?** Работа над адаптерами зависит от спроса — если вы торгуете на платформе, которую хотели бы видеть следующей, [напишите в Telegram](https://t.me/HarrierOnChain), и она может подняться в очереди.
+> **Хотите, чтобы площадку сделали раньше?** Работа над адаптерами зависит от спроса — если вы торгуете на платформе, которую хотели бы видеть следующей, [напишите в Telegram](https://t.me/tarpboi), и она может подняться в очереди.
 
 ---
 
@@ -255,11 +255,11 @@ Rust, асинхронность на Tokio, одно ядро исполнен�
 
 <div align="center">
 
-[![Написать в Telegram](https://img.shields.io/badge/💬_Telegram-@HarrierOnChain-229ED9?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/HarrierOnChain)
+[![Написать в Telegram](https://img.shields.io/badge/💬_Telegram-@tarpboi-229ED9?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/tarpboi)
 
 | Платформа | Ссылка |
 |-----------|--------|
-| **Telegram** | [t.me/HarrierOnChain](https://t.me/HarrierOnChain) |
+| **Telegram** | [t.me/tarpboi](https://t.me/tarpboi) |
 | **Обсуждения** | [GitHub Discussions](../../discussions) |
 
 *Обычно отвечаем в течение нескольких часов. Открыты к вопросам, отзывам, запросам площадок и серьёзному сотрудничеству.*
@@ -277,7 +277,7 @@ Rust, асинхронность на Tokio, одно ядро исполнен�
 <div align="center">
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
-[![Telegram](https://img.shields.io/badge/💬_Telegram-@HarrierOnChain-229ED9?style=flat-square&logo=telegram&logoColor=white)](https://t.me/HarrierOnChain)
+[![Telegram](https://img.shields.io/badge/💬_Telegram-@tarpboi-229ED9?style=flat-square&logo=telegram&logoColor=white)](https://t.me/tarpboi)
 
 **Создано для рынков предсказаний, включая Polymarket, Kalshi, Limitless и другие**
 

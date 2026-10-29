@@ -8,8 +8,8 @@
 ### 平台无关的预测市场交易基础设施 — 任何带订单簿的市场
 
 [![Rust](https://img.shields.io/badge/rust-1.70+-orange.svg?style=flat-square&logo=rust)](https://www.rust-lang.org/)
-[![Rust CI](https://github.com/HarrierOnChain/Prediction-Markets-Trading-Bot-Toolkits/actions/workflows/rust.yml/badge.svg)](https://github.com/HarrierOnChain/Prediction-Markets-Trading-Bot-Toolkits/actions/workflows/rust.yml)
-[![Stars](https://img.shields.io/github/stars/HarrierOnChain/Prediction-Markets-Trading-Bot-Toolkits?style=flat-square&color=6e40c9)](https://github.com/HarrierOnChain/Prediction-Markets-Trading-Bot-Toolkits/stargazers)
+[![Rust CI](https://github.com/tarpboi/Prediction-Markets-Trading-Bot-Toolkits/actions/workflows/rust.yml/badge.svg)](https://github.com/tarpboi/Prediction-Markets-Trading-Bot-Toolkits/actions/workflows/rust.yml)
+[![Stars](https://img.shields.io/github/stars/tarpboi/Prediction-Markets-Trading-Bot-Toolkits?style=flat-square&color=6e40c9)](https://github.com/tarpboi/Prediction-Markets-Trading-Bot-Toolkits/stargazers)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
 [![Tokio](https://img.shields.io/badge/async-tokio-blue.svg?style=flat-square)](https://tokio.rs/)
 [![Venues](https://img.shields.io/badge/平台仓库-20-6e40c9.svg?style=flat-square)](#平台覆盖)
@@ -19,7 +19,7 @@
 
 <br/>
 
-[![在 Telegram 联系](https://img.shields.io/badge/💬_在_Telegram_联系-@HarrierOnChain-229ED9?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/HarrierOnChain)
+[![在 Telegram 联系](https://img.shields.io/badge/💬_在_Telegram_联系-@tarpboi-229ED9?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/tarpboi)
 &nbsp;
 [![PnL Profit 已上线](https://img.shields.io/badge/🚀_PnL_Profit-访问_pnlpro.fit-16a34a?style=for-the-badge)](https://pnlpro.fit)
 
@@ -33,7 +33,7 @@
 
 ## 🚀 快速开始
 
-**无需安装 Rust 工具链。** 从[最新 release](https://github.com/HarrierOnChain/Prediction-Markets-Trading-Bot-Toolkits/releases/latest) 下载预编译二进制——Linux（x86_64 / aarch64）、macOS（Intel / Apple Silicon）、Windows——校验 SHA256，约一分钟即可运行：
+**无需安装 Rust 工具链。** 从[最新 release](https://github.com/tarpboi/Prediction-Markets-Trading-Bot-Toolkits/releases/latest) 下载预编译二进制——Linux（x86_64 / aarch64）、macOS（Intel / Apple Silicon）、Windows——校验 SHA256，约一分钟即可运行：
 
 ```bash
 tar -xzf polymarket-toolkits-<tag>-<target>.tar.gz
@@ -45,7 +45,7 @@ cp config.yaml.example config.yaml   # 凭据；config.json 已随压缩包提�
 
 压缩包内含 `config.json`（公开设置）与 `config.yaml.example`（凭据）。运行 `./polymarket-toolkits --help` 查看完整命令，或不带子命令启动进入交互式 TUI。
 
-想自己编译？`cargo install --git https://github.com/HarrierOnChain/Prediction-Markets-Trading-Bot-Toolkits`
+想自己编译？`cargo install --git https://github.com/tarpboi/Prediction-Markets-Trading-Bot-Toolkits`
 
 <table>
 <tr>
@@ -57,7 +57,7 @@ cp config.yaml.example config.yaml   # 凭据；config.json 已随压缩包提�
 
 ```bash
 # 1. 克隆引擎（交易代码在这里）
-git clone https://github.com/HarrierOnChain/Prediction-Markets-Trading-Bot-Toolkits
+git clone https://github.com/tarpboi/Prediction-Markets-Trading-Bot-Toolkits
 cd Prediction-Markets-Trading-Bot-Toolkits
 
 # 2. 配置——从示例复制凭据
@@ -82,7 +82,7 @@ cargo run --release -- run copy-trading
 
 > ⏸️ **托管服务目前已关闭**——它此前以纸面交易测试版运行，从未经手真实资金。今天受支持的方式是自己运行。
 
-**[→ 在 Telegram 联系](https://t.me/HarrierOnChain)**
+**[→ 在 Telegram 联系](https://t.me/tarpboi)**
 
 </td>
 </tr>
@@ -94,10 +94,10 @@ cargo run --release -- run copy-trading
 
 <div align="center">
 
-[![Stars](https://img.shields.io/github/stars/HarrierOnChain/Prediction-Markets-Trading-Bot-Toolkits?style=for-the-badge&logo=github&label=Stars&color=1f6feb)](https://github.com/HarrierOnChain/Prediction-Markets-Trading-Bot-Toolkits/stargazers)
-[![Forks](https://img.shields.io/github/forks/HarrierOnChain/Prediction-Markets-Trading-Bot-Toolkits?style=for-the-badge&logo=github&label=Forks&color=1f6feb)](https://github.com/HarrierOnChain/Prediction-Markets-Trading-Bot-Toolkits/forks)
-[![CI](https://img.shields.io/github/actions/workflow/status/HarrierOnChain/Prediction-Markets-Trading-Bot-Toolkits/rust.yml?style=for-the-badge&logo=githubactions&logoColor=white&label=Build)](https://github.com/HarrierOnChain/Prediction-Markets-Trading-Bot-Toolkits/actions/workflows/rust.yml)
-[![License](https://img.shields.io/github/license/HarrierOnChain/Prediction-Markets-Trading-Bot-Toolkits?style=for-the-badge&color=1f6feb)](LICENSE)
+[![Stars](https://img.shields.io/github/stars/tarpboi/Prediction-Markets-Trading-Bot-Toolkits?style=for-the-badge&logo=github&label=Stars&color=1f6feb)](https://github.com/tarpboi/Prediction-Markets-Trading-Bot-Toolkits/stargazers)
+[![Forks](https://img.shields.io/github/forks/tarpboi/Prediction-Markets-Trading-Bot-Toolkits?style=for-the-badge&logo=github&label=Forks&color=1f6feb)](https://github.com/tarpboi/Prediction-Markets-Trading-Bot-Toolkits/forks)
+[![CI](https://img.shields.io/github/actions/workflow/status/tarpboi/Prediction-Markets-Trading-Bot-Toolkits/rust.yml?style=for-the-badge&logo=githubactions&logoColor=white&label=Build)](https://github.com/tarpboi/Prediction-Markets-Trading-Bot-Toolkits/actions/workflows/rust.yml)
+[![License](https://img.shields.io/github/license/tarpboi/Prediction-Markets-Trading-Bot-Toolkits?style=for-the-badge&color=1f6feb)](LICENSE)
 
 | 🎯 策略 | ⚙️ 引擎 | 🧪 空跑 |
 |:---:|:---:|:---:|
@@ -147,7 +147,7 @@ cargo run --release -- run copy-trading
 
 <div align="center">
 
-💬 **想针对你的平台或资金规模详解某个策略？** → **[t.me/HarrierOnChain](https://t.me/HarrierOnChain)**
+💬 **想针对你的平台或资金规模详解某个策略？** → **[t.me/tarpboi](https://t.me/tarpboi)**
 
 </div>
 
@@ -161,7 +161,7 @@ cargo run --release -- run copy-trading
 
 <div align="center">
 
-[![在 Telegram 交流](https://img.shields.io/badge/交流机器人-Telegram-229ED9?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/HarrierOnChain)
+[![在 Telegram 交流](https://img.shields.io/badge/交流机器人-Telegram-229ED9?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/tarpboi)
 
 </div>
 
@@ -175,38 +175,38 @@ cargo run --release -- run copy-trading
 
 | 平台 | 类型 | 策略 |
 |---|---|---|
-| [**Polymarket**](https://github.com/HarrierOnChain/Polymarket) | 去中心化（Polygon / USDC） | 参考实现——全部十款 |
+| [**Polymarket**](https://github.com/tarpboi/Polymarket) | 去中心化（Polygon / USDC） | 参考实现——全部十款 |
 
 ### 传统 / 合规平台
 
 | 平台 | 类型 |
 |---|---|
-| [**Kalshi**](https://github.com/HarrierOnChain/Kalshi) | 受 CFTC 监管（美国） |
-| [**PredictIt**](https://github.com/HarrierOnChain/PredictIt) | 学术 / 美国政治 |
-| [**Robinhood Predictions**](https://github.com/HarrierOnChain/Robinhood-Predictions) | 券商集成 |
-| [**Crypto.com Predictions**](https://github.com/HarrierOnChain/Crypto.com-Predictions) | 加密集成 |
-| [**OG.com**](https://github.com/HarrierOnChain/OG.com) | 社交 / 多结果 |
-| [**DraftKings Predictions**](https://github.com/HarrierOnChain/DraftKings-Predictions) | 体育 |
-| [**FanDuel Predicts**](https://github.com/HarrierOnChain/FanDuel-Predicts) | 体育 |
-| [**Fanatics Markets**](https://github.com/HarrierOnChain/Fanatics-Markets) | 体育 / 娱乐 |
-| [**Interactive Brokers ForecastTrader**](https://github.com/HarrierOnChain/Interactive-Brokers-ForecastTrader) | 金融事件 |
+| [**Kalshi**](https://github.com/tarpboi/Kalshi) | 受 CFTC 监管（美国） |
+| [**PredictIt**](https://github.com/tarpboi/PredictIt) | 学术 / 美国政治 |
+| [**Robinhood Predictions**](https://github.com/tarpboi/Robinhood-Predictions) | 券商集成 |
+| [**Crypto.com Predictions**](https://github.com/tarpboi/Crypto.com-Predictions) | 加密集成 |
+| [**OG.com**](https://github.com/tarpboi/OG.com) | 社交 / 多结果 |
+| [**DraftKings Predictions**](https://github.com/tarpboi/DraftKings-Predictions) | 体育 |
+| [**FanDuel Predicts**](https://github.com/tarpboi/FanDuel-Predicts) | 体育 |
+| [**Fanatics Markets**](https://github.com/tarpboi/Fanatics-Markets) | 体育 / 娱乐 |
+| [**Interactive Brokers ForecastTrader**](https://github.com/tarpboi/Interactive-Brokers-ForecastTrader) | 金融事件 |
 
 ### 加密 / 去中心化平台
 
 | 平台 | 链 / 类型 |
 |---|---|
-| [**Limitless**](https://github.com/HarrierOnChain/Limitless-Exchange) | 链上订单簿 |
-| [**Drift BET**](https://github.com/HarrierOnChain/Drift-BET) | Solana |
-| [**Azuro**](https://github.com/HarrierOnChain/Azuro) | 去中心化协议 |
-| [**Augur**](https://github.com/HarrierOnChain/Augur) | 以太坊 |
-| [**Myriad Markets**](https://github.com/HarrierOnChain/Myriad-Markets) | 加密 |
-| [**Hedgehog Markets**](https://github.com/HarrierOnChain/Hedgehog-Markets) | Solana / 社交 |
-| [**Zeitgeist**](https://github.com/HarrierOnChain/Zeitgeist) | Polkadot |
-| [**Projection Finance**](https://github.com/HarrierOnChain/Projection-Finance) | 波动率 / 模拟 |
-| [**Better Fan**](https://github.com/HarrierOnChain/Better-Fan) | 体育 / 电竞 |
-| [**Manifold Markets**](https://github.com/HarrierOnChain/Manifold-Markets) | 虚拟币 · 共识信号 |
+| [**Limitless**](https://github.com/tarpboi/Limitless-Exchange) | 链上订单簿 |
+| [**Drift BET**](https://github.com/tarpboi/Drift-BET) | Solana |
+| [**Azuro**](https://github.com/tarpboi/Azuro) | 去中心化协议 |
+| [**Augur**](https://github.com/tarpboi/Augur) | 以太坊 |
+| [**Myriad Markets**](https://github.com/tarpboi/Myriad-Markets) | 加密 |
+| [**Hedgehog Markets**](https://github.com/tarpboi/Hedgehog-Markets) | Solana / 社交 |
+| [**Zeitgeist**](https://github.com/tarpboi/Zeitgeist) | Polkadot |
+| [**Projection Finance**](https://github.com/tarpboi/Projection-Finance) | 波动率 / 模拟 |
+| [**Better Fan**](https://github.com/tarpboi/Better-Fan) | 体育 / 电竞 |
+| [**Manifold Markets**](https://github.com/tarpboi/Manifold-Markets) | 虚拟币 · 共识信号 |
 
-> **希望优先支持某个平台？** 适配器开发由需求驱动——如果你希望某个平台被优先接入，[在 Telegram 联系我们](https://t.me/HarrierOnChain)，它可以在队列中提前。
+> **希望优先支持某个平台？** 适配器开发由需求驱动——如果你希望某个平台被优先接入，[在 Telegram 联系我们](https://t.me/tarpboi)，它可以在队列中提前。
 
 ---
 
@@ -255,11 +255,11 @@ Rust 编写，基于 Tokio 异步，一套执行核心支撑所有策略与所�
 
 <div align="center">
 
-[![在 Telegram 联系](https://img.shields.io/badge/💬_Telegram-@HarrierOnChain-229ED9?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/HarrierOnChain)
+[![在 Telegram 联系](https://img.shields.io/badge/💬_Telegram-@tarpboi-229ED9?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/tarpboi)
 
 | 平台 | 链接 |
 |------|------|
-| **Telegram** | [t.me/HarrierOnChain](https://t.me/HarrierOnChain) |
+| **Telegram** | [t.me/tarpboi](https://t.me/tarpboi) |
 | **讨论区** | [GitHub Discussions](../../discussions) |
 
 *响应时间通常在数小时内。欢迎提问、反馈、平台请求与正经合作。*
@@ -277,7 +277,7 @@ Rust 编写，基于 Tokio 异步，一套执行核心支撑所有策略与所�
 <div align="center">
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
-[![Telegram](https://img.shields.io/badge/💬_Telegram-@HarrierOnChain-229ED9?style=flat-square&logo=telegram&logoColor=white)](https://t.me/HarrierOnChain)
+[![Telegram](https://img.shields.io/badge/💬_Telegram-@tarpboi-229ED9?style=flat-square&logo=telegram&logoColor=white)](https://t.me/tarpboi)
 
 **为 Polymarket、Kalshi、Limitless 等预测市场社区而构建**
 

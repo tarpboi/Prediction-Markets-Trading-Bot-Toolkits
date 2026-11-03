@@ -10,7 +10,9 @@
 //! - [`eligibility`]      — allowlist/blocklist filter for slugs, categories, tags
 //! - [`position_store`]   — open-position tracking + exposure totals
 //! - [`midprice`]         — `/midpoint` HTTP client (trait, swappable)
-//! - [`position_monitor`] — TP/SL polling loop, posts exit FAKs through the CLOB
+//! - [`position_monitor`] — TP/SL polling loop, posts exit orders through the venue
+//! - [`venue`]            — traits a venue implements to plug into the pipeline
+//! - [`predict_fun`]      — Predict.fun adapter: REST feed, signing, order POST
 
 pub mod clob;
 pub mod eligibility;
@@ -21,5 +23,7 @@ pub mod order_executor;
 pub mod parse;
 pub mod position_monitor;
 pub mod position_store;
+pub mod predict_fun;
 pub mod risk_guard;
 pub mod strategy;
+pub mod venue;

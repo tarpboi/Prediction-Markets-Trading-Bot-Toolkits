@@ -1,4 +1,5 @@
 {
+  "venue": "polymarket",
   "bot": {
     "wallets_to_track": ["0x63ce342161250d705dc0b16df89036c8e5f9ba9a"],
     "enable_trading": false,
@@ -44,6 +45,10 @@
     "chain_id": 137,
     "domain_name": "Polymarket CTF Exchange",
     "domain_version": "1"
+  },
+  "predict_fun": {
+    "network": "testnet",
+    "wallets_to_track": []
   },
   "filters": {
     "_comment_mode": "Strict allowlist: when any *_allow list is non-empty, only matching markets are copied. Block lists always win.",

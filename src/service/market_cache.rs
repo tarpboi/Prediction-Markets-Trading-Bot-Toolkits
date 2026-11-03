@@ -3,7 +3,9 @@
 //! Backed by the Gamma API. The cache is read-through with a per-entry TTL;
 //! callers never await against the network unless the key is missing or stale.
 
+use crate::service::venue::MarketSource;
 use anyhow::{anyhow, Result};
+use async_trait::async_trait;
 use parking_lot::RwLock;
 use reqwest::Client;
 use serde::Deserialize;
@@ -133,6 +135,13 @@ impl MarketCache {
         resp.as_array()
             .cloned()
             .ok_or_else(|| anyhow!("gamma /markets returned non-array for {url}"))
+    }
+}
+
+#[async_trait]
+impl MarketSource for MarketCache {
+    async fn by_token_id(&self, token_id: &str) -> Result<MarketInfo> {
+        MarketCache::by_token_id(self, token_id).await
     }
 }
 

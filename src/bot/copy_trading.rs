@@ -24,8 +24,12 @@
 //! in dry-run mode — the full pipeline runs but signed orders are logged,
 //! not submitted. Dry-run also records positions locally so the TP/SL
 //! monitor exercises against real midprices.
+//!
+//! On Predict.fun, ingestion is the venue's trade feed rather than chain logs
+//! (see [`service::predict_fun`]); steps 3 onward are the same pipeline.
 
 use crate::config::AppConfig;
+use crate::models::{VenueId, WhaleTrade};
 use crate::service::{
     clob::ClobClient,
     market_cache::MarketCache,
@@ -35,9 +39,11 @@ use crate::service::{
     parse::{decode_whale_trade, order_filled_topic},
     position_monitor,
     position_store::PositionStore,
+    predict_fun::{PredictFunClient, PredictFunTrader, WhaleFeed},
     risk_guard::RiskGuard,
+    venue::OrderVenue,
 };
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, bail, Result};
 use reqwest::Client;
 use std::sync::Arc;
 use tokio::sync::mpsc;
@@ -46,6 +52,14 @@ use tracing::{error, info, warn};
 const LOG_CHANNEL_CAPACITY: usize = 256;
 
 pub async fn run(cfg: AppConfig) -> Result<()> {
+    match cfg.venue {
+        VenueId::Polymarket => run_polymarket(cfg).await,
+        VenueId::PredictFun => run_predict_fun(cfg).await,
+        other => bail!("copy trading has no {other:?} adapter yet"),
+    }
+}
+
+async fn run_polymarket(cfg: AppConfig) -> Result<()> {
     let whale = cfg
         .bot
         .wallets_to_track
@@ -69,41 +83,20 @@ pub async fn run(cfg: AppConfig) -> Result<()> {
     let markets = MarketCache::new(http.clone(), cfg.site.gamma_api_base.clone());
     let positions = PositionStore::new();
 
+    let venue = ClobClient::new(&cfg).map(|c| Arc::new(c) as Arc<dyn OrderVenue>);
     let executor = OrderExecutor::new(
         cfg.clone(),
+        venue,
         Arc::clone(&risk),
-        Arc::clone(&markets),
+        markets,
         Arc::clone(&positions),
     )?;
 
-    // TP/SL monitor — only spawn if we have a CLOB client (cfg permitted it).
-    if cfg.tp_sl.enabled {
-        if let Some(clob) = executor.clob() {
-            let midprice: Arc<dyn MidpriceSource> = Arc::new(ClobMidpriceSource::new(
-                http.clone(),
-                cfg.site.clob_api_base.clone(),
-            ));
-            let live = cfg.live_trading_allowed();
-            position_monitor::spawn(
-                cfg.tp_sl.clone(),
-                Arc::clone(&positions),
-                clob,
-                midprice,
-                live,
-                cfg.trading.price_buffer,
-                cfg.trading.order_expiration_secs,
-            );
-            info!(
-                poll_interval_secs = cfg.tp_sl.poll_interval_secs,
-                "TP/SL monitor spawned"
-            );
-        } else {
-            warn!(
-                "TP/SL enabled but no CLOB client (missing credentials?) — \
-                 entries will still record positions, but exits won't fire"
-            );
-        }
-    }
+    let midprice: Arc<dyn MidpriceSource> = Arc::new(ClobMidpriceSource::new(
+        http.clone(),
+        cfg.site.clob_api_base.clone(),
+    ));
+    spawn_tp_sl(&cfg, &executor, &positions, midprice);
 
     let filter = build_filter(&cfg, &whale)?;
     let (tx, mut rx) = mpsc::channel::<RawLog>(LOG_CHANNEL_CAPACITY);
@@ -131,28 +124,132 @@ pub async fn run(cfg: AppConfig) -> Result<()> {
     }
 }
 
+async fn run_predict_fun(cfg: AppConfig) -> Result<()> {
+    let whale = cfg
+        .predict_fun
+        .wallets_to_track
+        .first()
+        .cloned()
+        .ok_or_else(|| anyhow!("config.predict_fun.wallets_to_track is empty"))?;
+
+    info!(
+        whale = %whale,
+        network = ?cfg.predict_fun.network,
+        enable_trading = cfg.bot.enable_trading,
+        mock_trading = cfg.bot.mock_trading,
+        strict_allowlist = cfg.filters.is_strict(),
+        tp_sl_enabled = cfg.tp_sl.enabled,
+        "starting copy-trading bot on Predict.fun"
+    );
+
+    let client = PredictFunClient::new(&cfg)?;
+    let risk = RiskGuard::new(cfg.risk.clone());
+    let positions = PositionStore::new();
+
+    let venue = PredictFunTrader::new(Arc::clone(&client), &cfg)
+        .map(|t| Arc::new(t) as Arc<dyn OrderVenue>);
+    let executor = OrderExecutor::new(
+        cfg.clone(),
+        venue,
+        risk,
+        client.clone(),
+        Arc::clone(&positions),
+    )?;
+    spawn_tp_sl(&cfg, &executor, &positions, client.clone());
+
+    let mut feed = WhaleFeed::new(client, &whale)?;
+    let mut ticker = tokio::time::interval(std::time::Duration::from_secs(
+        cfg.trading.poll_interval_secs.max(1),
+    ));
+    ticker.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Skip);
+    let mut shutdown = Box::pin(tokio::signal::ctrl_c());
+
+    loop {
+        tokio::select! {
+            biased;
+            _ = &mut shutdown => {
+                info!(open_positions = positions.len(), "shutdown signal received");
+                return Ok(());
+            }
+            _ = ticker.tick() => {
+                let trades = match feed.poll().await {
+                    Ok(trades) => trades,
+                    Err(e) => {
+                        warn!(error = ?e, "trade feed poll failed; retrying next tick");
+                        continue;
+                    }
+                };
+                for trade in trades {
+                    if let Err(e) = handle_trade(&executor, &trade).await {
+                        error!(error = ?e, tx = ?trade.tx_hash, "handle_trade failed");
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// TP/SL monitor — only spawn if we have a venue client (cfg permitted it).
+fn spawn_tp_sl(
+    cfg: &AppConfig,
+    executor: &OrderExecutor,
+    positions: &Arc<PositionStore>,
+    midprice: Arc<dyn MidpriceSource>,
+) {
+    if !cfg.tp_sl.enabled {
+        return;
+    }
+    if let Some(venue) = executor.venue() {
+        position_monitor::spawn(
+            cfg.tp_sl.clone(),
+            Arc::clone(positions),
+            venue,
+            midprice,
+            cfg.live_trading_allowed(),
+            cfg.trading.price_buffer,
+            cfg.trading.order_expiration_secs,
+        );
+        info!(
+            poll_interval_secs = cfg.tp_sl.poll_interval_secs,
+            "TP/SL monitor spawned"
+        );
+    } else {
+        warn!(
+            "TP/SL enabled but no venue client (missing credentials?) — \
+             entries will still record positions, but exits won't fire"
+        );
+    }
+}
+
 async fn handle_log(executor: &OrderExecutor, whale: &str, log: &RawLog) -> Result<()> {
     let Some(trade) = decode_whale_trade(log, whale)? else {
         return Ok(());
     };
+    handle_trade(executor, &trade).await
+}
+
+async fn handle_trade(executor: &OrderExecutor, trade: &WhaleTrade) -> Result<()> {
     info!(
         token = %trade.token_id,
         side = ?trade.side,
         shares = trade.shares,
         usd = trade.usd_notional,
-        tx = %log.tx_hash,
+        tx = ?trade.tx_hash,
         "whale trade detected"
     );
-    match executor.execute(&trade).await? {
+    match executor.execute(trade).await? {
         ExecutionOutcome::Skipped(r) => info!(?r, "execution skipped"),
-        ExecutionOutcome::DryRun(signed) => info!(
-            token = %signed.token_id,
-            shares = %signed.taker_amount,
+        ExecutionOutcome::DryRun(ticket) => info!(
+            token = %ticket.token_id,
+            maker_amount = %ticket.maker_amount,
+            taker_amount = %ticket.taker_amount,
             "dry-run order signed (not submitted)"
         ),
-        ExecutionOutcome::Submitted { order_id, .. } => info!(
+        ExecutionOutcome::Submitted { order_id, ticket } => info!(
             order_id = ?order_id,
-            "order submitted to Polymarket CLOB"
+            filled_shares = ?ticket.filled_shares,
+            venue = ?trade.venue,
+            "order submitted"
         ),
     }
     Ok(())

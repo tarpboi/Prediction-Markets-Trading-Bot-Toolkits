@@ -175,10 +175,20 @@ cargo run --release -- run copy-trading
 
 | 平台 | 类型 | 策略 |
 |---|---|---|
-| [**Predict.fun**](https://github.com/tarpboi/Predict.fun) | 去中心化（BNB Chain / USDT） | 适配器尚未接入 |
+| [**Predict.fun**](https://github.com/tarpboi/Predict.fun) | 去中心化（BNB Chain / USDT） | 跟单交易 — 已在测试网完成空跑验证；实盘下单尚未测试 |
 | [**Polymarket**](https://github.com/tarpboi/Polymarket) | 去中心化（Polygon / USDC） | 参考实现——全部十款 |
 
-> **Predict.fun** 在 BNB Chain 上以 USDT 结算，采用与 Polymarket 相同的 CTF 交易所合约设计，并提供 5 分钟和 15 分钟的加密货币回合，因此非常适合本引擎。如果希望尽快接入其适配器，[请在 Telegram 上联系](https://t.me/tarpboi)。
+> **Predict.fun** 在 BNB Chain 上以 USDT 结算，采用与 Polymarket 相同的 CTF 交易所合约设计，并提供 5 分钟和 15 分钟的加密货币回合。跟单交易现已接入：适配器通过 Predict 的 API 跟踪钱包成交，依据实时订单簿为订单定价，并可为全部四个交易所合约签名。签名与 Predict 官方 SDK 逐字节一致，完整流程已在测试网完成空跑。**实盘下单尚未测试**，在用小额资金验证之前，请保持空跑。
+
+```bash
+# 从源码构建：适配器尚未包含在发布版本中。默认使用测试网。
+cargo run --release -- --venue predict-fun check-venue
+
+# 请先在 config.json 的 predict_fun.wallets_to_track 中添加要跟单的钱包。
+cargo run --release -- --venue predict-fun run copy-trading
+```
+
+主网需要在 `config.json` 中设置 `"network": "mainnet"`，并向 Predict 申请 API 密钥。实盘交易前，请先用 SDK 的 `setApprovals` 完成一次授权，使用专用钱包，并阅读 Predict 的[服务条款](https://docs.predict.fun/terms-of-service)：条款禁止多个司法辖区（包括美国和英国）使用，登录签名即表示接受条款。2026 年 10 月，Predict 报告了约 400,000 USDT 的未授权钱包转账，详情见[平台仓库](https://github.com/tarpboi/Predict.fun)。
 
 ### 传统 / 合规平台
 

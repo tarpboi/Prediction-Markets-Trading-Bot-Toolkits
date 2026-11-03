@@ -179,10 +179,20 @@ per-venue repos hold venue metadata, so clone this repo for the trading code.
 
 | Venue | Type | Strategies |
 |---|---|---|
-| [**Predict.fun**](https://github.com/tarpboi/Predict.fun) | Decentralized (BNB Chain / USDT) | Adapter not wired yet |
+| [**Predict.fun**](https://github.com/tarpboi/Predict.fun) | Decentralized (BNB Chain / USDT) | Copy Trading — dry-run verified on testnet; live orders not yet tested |
 | [**Polymarket**](https://github.com/tarpboi/Polymarket) | Decentralized (Polygon / USDC) | Reference implementation — all ten |
 
-> **Predict.fun** settles in USDT on BNB Chain and uses the same CTF-exchange contract design as Polymarket, with 5- and 15-minute crypto rounds, so it's a natural fit for this engine. [Ask on Telegram](https://t.me/tarpboi) if you want its adapter sooner.
+> **Predict.fun** settles in USDT on BNB Chain and uses the same CTF-exchange contract design as Polymarket, with 5- and 15-minute crypto rounds. Copy Trading connects to it today: the adapter follows a wallet's fills through Predict's API, prices orders from the live book, and signs them for all four exchange contracts. Signatures match Predict's official SDK byte for byte, and the full pipeline has run in dry-run on testnet. **Live order submission hasn't been tested yet**, so stay in dry-run until you've proven it with a small amount.
+
+```bash
+# Build from source: the adapter is not in a release yet. Defaults to testnet.
+cargo run --release -- --venue predict-fun check-venue
+
+# Add a wallet to predict_fun.wallets_to_track in config.json first.
+cargo run --release -- --venue predict-fun run copy-trading
+```
+
+Mainnet needs `"network": "mainnet"` in `config.json` and an API key from Predict. Before trading live, set approvals once with the SDK's `setApprovals`, use a dedicated wallet, and read Predict's [Terms of Service](https://docs.predict.fun/terms-of-service): they bar several jurisdictions, including the US and UK, and signing in accepts them. In October 2026 Predict reported about 400,000 USDT in unauthorized wallet transfers; the [venue repo](https://github.com/tarpboi/Predict.fun) has details.
 
 ### Traditional / Regulated
 

@@ -11,12 +11,14 @@
 //! flags are explicitly permissive (see [`AppConfig::live_trading_allowed`]).
 
 use crate::config::{AppConfig, ExchangeConfig};
-use crate::models::{OrderType, PlannedOrder, Side};
+use crate::models::{OrderType, PlannedOrder, Side, VenueId};
+use crate::service::venue::{OrderTicket, OrderVenue};
 use alloy_primitives::{Address, B256, U256};
 use alloy_signer::Signer;
 use alloy_signer_local::PrivateKeySigner;
 use alloy_sol_types::{eip712_domain, sol, Eip712Domain, SolStruct};
 use anyhow::{anyhow, Context, Result};
+use async_trait::async_trait;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
@@ -275,6 +277,35 @@ impl ClobClient {
             ("POLY_PASSPHRASE", api_passphrase.clone()),
             ("Content-Type", "application/json".into()),
         ])
+    }
+}
+
+#[async_trait]
+impl OrderVenue for ClobClient {
+    fn id(&self) -> VenueId {
+        VenueId::Polymarket
+    }
+
+    async fn place(
+        &self,
+        planned: &PlannedOrder,
+        expiration_secs: u64,
+        live: bool,
+    ) -> Result<OrderTicket> {
+        let signed = self
+            .build_signed_order(planned, planned.order_type, expiration_secs)
+            .await?;
+        let mut ticket = OrderTicket {
+            token_id: signed.token_id.clone(),
+            maker_amount: signed.maker_amount.clone(),
+            taker_amount: signed.taker_amount.clone(),
+            order_id: None,
+            filled_shares: None,
+        };
+        if live {
+            ticket.order_id = self.post_order(signed, planned.order_type).await?.order_id;
+        }
+        Ok(ticket)
     }
 }
 

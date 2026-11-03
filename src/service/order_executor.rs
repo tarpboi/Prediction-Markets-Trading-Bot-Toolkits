@@ -9,12 +9,12 @@ use std::sync::Arc;
 
 use crate::config::AppConfig;
 use crate::models::{OrderType, PlannedOrder, Side, WhaleTrade};
-use crate::service::clob::{ClobClient, SignedOrder};
 use crate::service::eligibility::{self, Eligibility};
-use crate::service::market_cache::{MarketCache, MarketInfo};
+use crate::service::market_cache::MarketInfo;
 use crate::service::position_store::{OpenPosition, PositionStore};
 use crate::service::risk_guard::{BlockReason, RiskCheck, RiskGuard};
 use crate::service::strategy;
+use crate::service::venue::{MarketSource, OrderTicket, OrderVenue};
 use crate::utils;
 use anyhow::Result;
 use chrono::Utc;
@@ -22,19 +22,19 @@ use tracing::{info, warn};
 
 pub struct OrderExecutor {
     cfg: AppConfig,
-    clob: Option<Arc<ClobClient>>,
+    venue: Option<Arc<dyn OrderVenue>>,
     risk: Arc<RiskGuard>,
-    markets: Arc<MarketCache>,
+    markets: Arc<dyn MarketSource>,
     positions: Arc<PositionStore>,
 }
 
 #[derive(Debug, Clone)]
 pub enum ExecutionOutcome {
     Skipped(SkipReason),
-    DryRun(SignedOrder),
+    DryRun(OrderTicket),
     Submitted {
         order_id: Option<String>,
-        signed: SignedOrder,
+        ticket: OrderTicket,
     },
 }
 
@@ -56,30 +56,31 @@ pub enum SkipReason {
 impl OrderExecutor {
     pub fn new(
         cfg: AppConfig,
+        venue: Result<Arc<dyn OrderVenue>>,
         risk: Arc<RiskGuard>,
-        markets: Arc<MarketCache>,
+        markets: Arc<dyn MarketSource>,
         positions: Arc<PositionStore>,
     ) -> Result<Self> {
-        let clob = match ClobClient::new(&cfg) {
-            Ok(c) => Some(Arc::new(c)),
+        let venue = match venue {
+            Ok(v) => Some(v),
             Err(e) if cfg.bot.mock_trading || !cfg.bot.enable_trading => {
-                warn!(error = ?e, "CLOB client not initialised; dry-run only");
+                warn!(error = ?e, "venue client not initialised; dry-run only");
                 None
             }
             Err(e) => return Err(e),
         };
         Ok(Self {
             cfg,
-            clob,
+            venue,
             risk,
             markets,
             positions,
         })
     }
 
-    /// Return the underlying CLOB client (for the position monitor's exit path).
-    pub fn clob(&self) -> Option<Arc<ClobClient>> {
-        self.clob.as_ref().cloned()
+    /// Return the underlying venue client (for the position monitor's exit path).
+    pub fn venue(&self) -> Option<Arc<dyn OrderVenue>> {
+        self.venue.as_ref().cloned()
     }
 
     pub fn positions(&self) -> Arc<PositionStore> {
@@ -165,17 +166,18 @@ impl OrderExecutor {
             source_trade_hash: trade.tx_hash.clone(),
         };
 
-        let Some(clob) = self.clob.as_ref() else {
+        let Some(venue) = self.venue.as_ref() else {
             return Ok(ExecutionOutcome::Skipped(SkipReason::TradingDisabled));
         };
 
-        // 7. Sign.
-        let signed = clob
-            .build_signed_order(&planned, order_type, self.cfg.trading.order_expiration_secs)
+        // 7. Sign, and dispatch unless this is a dry run.
+        let live = self.cfg.live_trading_allowed();
+        let ticket = venue
+            .place(&planned, self.cfg.trading.order_expiration_secs, live)
             .await?;
 
-        // 8. Dispatch (or dry-run).
-        if !self.cfg.live_trading_allowed() {
+        // 8. Record.
+        if !live {
             info!(
                 token = %planned.token_id,
                 side = ?planned.side,
@@ -186,14 +188,28 @@ impl OrderExecutor {
             // Even in dry-run, record the position so the monitor exercises
             // the TP/SL path against real midprices.
             self.record_open(&market, &planned);
-            return Ok(ExecutionOutcome::DryRun(signed));
+            return Ok(ExecutionOutcome::DryRun(ticket));
         }
 
-        let resp = clob.post_order(signed.clone(), order_type).await?;
-        self.record_open(&market, &planned);
+        // Track what actually filled, where the venue says. An order that
+        // filled nothing must not count against exposure or arm TP/SL.
+        match ticket.filled_shares {
+            Some(filled) if filled <= 0.0 => {
+                warn!(token = %planned.token_id, "order accepted but nothing filled");
+            }
+            Some(filled) => {
+                let actual = PlannedOrder {
+                    shares: filled,
+                    usd_notional: filled * planned.limit_price,
+                    ..planned.clone()
+                };
+                self.record_open(&market, &actual);
+            }
+            None => self.record_open(&market, &planned),
+        }
         Ok(ExecutionOutcome::Submitted {
-            order_id: resp.order_id,
-            signed,
+            order_id: ticket.order_id.clone(),
+            ticket,
         })
     }
 
@@ -307,4 +323,95 @@ fn ci_eq(a: &str, b: &str) -> bool {
     a.len() == b.len() && a.chars().zip(b.chars()).all(|(x, y)| {
         x.to_ascii_lowercase() == y.to_ascii_lowercase()
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::models::VenueId;
+    use async_trait::async_trait;
+
+    struct FakeMarkets;
+
+    #[async_trait]
+    impl MarketSource for FakeMarkets {
+        async fn by_token_id(&self, token_id: &str) -> Result<MarketInfo> {
+            Ok(MarketInfo {
+                slug: "s".into(),
+                question: "q".into(),
+                yes_token_id: token_id.into(),
+                no_token_id: "other".into(),
+                category: None,
+                tags: vec![],
+                closed: false,
+            })
+        }
+    }
+
+    struct FakeVenue(Option<f64>);
+
+    #[async_trait]
+    impl OrderVenue for FakeVenue {
+        fn id(&self) -> VenueId {
+            VenueId::PredictFun
+        }
+        async fn place(&self, p: &PlannedOrder, _: u64, _: bool) -> Result<OrderTicket> {
+            Ok(OrderTicket {
+                token_id: p.token_id.clone(),
+                maker_amount: "1".into(),
+                taker_amount: "1".into(),
+                order_id: Some("1".into()),
+                filled_shares: self.0,
+            })
+        }
+    }
+
+    /// Run one live buy through the pipeline; returns the shares recorded.
+    async fn recorded_shares(filled: Option<f64>) -> Option<f64> {
+        let mut cfg: AppConfig = serde_json::from_str(include_str!("../../config.json")).unwrap();
+        cfg.filters = Default::default();
+        cfg.bot.enable_trading = true;
+        cfg.bot.mock_trading = false;
+        let positions = PositionStore::new();
+        let risk = RiskGuard::new(cfg.risk.clone());
+        let executor = OrderExecutor::new(
+            cfg,
+            Ok(Arc::new(FakeVenue(filled))),
+            risk,
+            Arc::new(FakeMarkets),
+            Arc::clone(&positions),
+        )
+        .unwrap();
+        let trade = WhaleTrade {
+            venue: VenueId::PredictFun,
+            maker: "0xwhale".into(),
+            side: Side::Buy,
+            token_id: "t".into(),
+            shares: 500.0,
+            price: 0.5,
+            usd_notional: 250.0,
+            tx_hash: None,
+            block_number: None,
+            observed_at: Utc::now(),
+        };
+        let outcome = executor.execute(&trade).await.unwrap();
+        assert!(matches!(outcome, ExecutionOutcome::Submitted { .. }));
+        positions.get("t").map(|p| p.shares)
+    }
+
+    #[tokio::test]
+    async fn unknown_fill_records_the_planned_size() {
+        // PERCENTAGE 20% of $250 at a 0.505 limit, floored to whole shares.
+        assert_eq!(recorded_shares(None).await, Some(99.0));
+    }
+
+    #[tokio::test]
+    async fn partial_fill_records_what_filled() {
+        assert_eq!(recorded_shares(Some(12.5)).await, Some(12.5));
+    }
+
+    #[tokio::test]
+    async fn empty_fill_records_nothing() {
+        assert_eq!(recorded_shares(Some(0.0)).await, None);
+    }
 }

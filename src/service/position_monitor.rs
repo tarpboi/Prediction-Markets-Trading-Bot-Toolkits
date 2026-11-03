@@ -6,10 +6,10 @@
 //! through the existing executor — same signing path, same risk gates.
 
 use crate::config::TpSlConfig;
-use crate::models::{OrderType, PlannedOrder, Side, VenueId};
-use crate::service::clob::ClobClient;
+use crate::models::{OrderType, PlannedOrder, Side};
 use crate::service::midprice::MidpriceSource;
 use crate::service::position_store::{OpenPosition, PositionStore};
+use crate::service::venue::OrderVenue;
 use crate::utils;
 use anyhow::Result;
 use std::sync::Arc;
@@ -38,7 +38,7 @@ pub fn check_exit(pos: &OpenPosition, midprice: f64) -> Option<ExitReason> {
 pub fn spawn(
     cfg: TpSlConfig,
     positions: Arc<PositionStore>,
-    clob: Arc<ClobClient>,
+    venue: Arc<dyn OrderVenue>,
     midprice: Arc<dyn MidpriceSource>,
     live_trading: bool,
     price_buffer: f64,
@@ -58,7 +58,7 @@ pub fn spawn(
                 if let Err(e) = monitor_once(
                     &pos,
                     &positions,
-                    clob.as_ref(),
+                    venue.as_ref(),
                     midprice.as_ref(),
                     live_trading,
                     price_buffer,
@@ -80,7 +80,7 @@ pub fn spawn(
 async fn monitor_once(
     pos: &OpenPosition,
     positions: &PositionStore,
-    clob: &ClobClient,
+    venue: &dyn OrderVenue,
     midprice: &dyn MidpriceSource,
     live_trading: bool,
     price_buffer: f64,
@@ -118,7 +118,7 @@ async fn monitor_once(
     };
 
     let planned = PlannedOrder {
-        venue: VenueId::Polymarket,
+        venue: venue.id(),
         token_id: pos.token_id.clone(),
         side: exit_side,
         shares: pos.shares,
@@ -128,15 +128,19 @@ async fn monitor_once(
         source_trade_hash: None,
     };
 
-    let signed = clob
-        .build_signed_order(&planned, OrderType::Fak, order_expiration_secs)
-        .await?;
-
     if live_trading {
-        match clob.post_order(signed.clone(), OrderType::Fak).await {
-            Ok(resp) => {
+        match venue.place(&planned, order_expiration_secs, true).await {
+            // Accepted but unfilled: the shares are still held, so keep watching.
+            Ok(ticket) if ticket.order_id.is_some() && ticket.filled_shares == Some(0.0) => {
+                warn!(
+                    order_id = ?ticket.order_id,
+                    token = %pos.token_id,
+                    "exit order filled nothing; will retry next tick"
+                );
+            }
+            Ok(ticket) => {
                 info!(
-                    order_id = ?resp.order_id,
+                    order_id = ?ticket.order_id,
                     token = %pos.token_id,
                     "exit order submitted"
                 );
@@ -147,6 +151,7 @@ async fn monitor_once(
             }
         }
     } else {
+        venue.place(&planned, order_expiration_secs, false).await?;
         info!(
             token = %pos.token_id,
             shares = planned.shares,
@@ -161,7 +166,78 @@ async fn monitor_once(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::models::VenueId;
+    use crate::service::venue::OrderTicket;
+    use async_trait::async_trait;
     use chrono::Utc;
+
+    struct FakeVenue {
+        order_id: Option<&'static str>,
+        filled: Option<f64>,
+    }
+
+    #[async_trait]
+    impl OrderVenue for FakeVenue {
+        fn id(&self) -> VenueId {
+            VenueId::PredictFun
+        }
+        async fn place(&self, planned: &PlannedOrder, _: u64, _: bool) -> Result<OrderTicket> {
+            assert_eq!(planned.venue, VenueId::PredictFun);
+            assert_eq!(planned.side, Side::Sell);
+            Ok(OrderTicket {
+                token_id: planned.token_id.clone(),
+                maker_amount: "0".into(),
+                taker_amount: "0".into(),
+                order_id: self.order_id.map(String::from),
+                filled_shares: self.filled,
+            })
+        }
+    }
+
+    struct FixedMid(f64);
+
+    #[async_trait]
+    impl MidpriceSource for FixedMid {
+        async fn midprice(&self, _: &str) -> Result<f64> {
+            Ok(self.0)
+        }
+    }
+
+    /// Trigger take-profit against `venue` and report if the position survived.
+    async fn still_open_after_exit(venue: FakeVenue) -> bool {
+        let store = PositionStore::new();
+        let p = pos(0.50, 30.0, 20.0, Side::Buy);
+        store.open(p.clone());
+        monitor_once(&p, &store, &venue, &FixedMid(0.80), true, 0.005, 60)
+            .await
+            .unwrap();
+        store.get(&p.token_id).is_some()
+    }
+
+    #[tokio::test]
+    async fn filled_exit_closes_the_position() {
+        let venue = FakeVenue { order_id: Some("1"), filled: Some(100.0) };
+        assert!(!still_open_after_exit(venue).await);
+    }
+
+    #[tokio::test]
+    async fn exit_with_unknown_fill_closes_the_position() {
+        // How Polymarket behaves: it doesn't report fills synchronously.
+        let venue = FakeVenue { order_id: Some("1"), filled: None };
+        assert!(!still_open_after_exit(venue).await);
+    }
+
+    #[tokio::test]
+    async fn unfilled_exit_keeps_watching_the_position() {
+        let venue = FakeVenue { order_id: Some("1"), filled: Some(0.0) };
+        assert!(still_open_after_exit(venue).await);
+    }
+
+    #[tokio::test]
+    async fn exit_with_nothing_held_closes_the_position() {
+        let venue = FakeVenue { order_id: None, filled: Some(0.0) };
+        assert!(!still_open_after_exit(venue).await);
+    }
 
     fn pos(entry: f64, tp: f64, sl: f64, side: Side) -> OpenPosition {
         OpenPosition {

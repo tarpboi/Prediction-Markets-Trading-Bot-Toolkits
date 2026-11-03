@@ -4,18 +4,27 @@
 //! - `config.json` — public settings (committed)
 //! - `config.yaml` — credentials (gitignored, must never be committed)
 
+use crate::models::VenueId;
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AppConfig {
+    /// Which venue the copy-trading bot trades. Defaults to Polymarket.
+    #[serde(default)]
+    pub venue: VenueId,
+
     pub bot: BotConfig,
     pub site: SiteConfig,
     pub strategy: StrategyConfig,
     pub trading: TradingConfig,
     pub risk: RiskConfig,
     pub exchange: ExchangeConfig,
+
+    /// Predict.fun settings, used when `venue` is `predict_fun`.
+    #[serde(default)]
+    pub predict_fun: PredictFunConfig,
 
     /// Market eligibility filter (allowlist + blocklist by category, tag, slug).
     #[serde(default)]
@@ -112,6 +121,27 @@ pub struct ExchangeConfig {
     pub domain_version: String,
 }
 
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "lowercase")]
+pub enum PredictNetwork {
+    #[default]
+    Testnet,
+    Mainnet,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct PredictFunConfig {
+    /// Selects the API host, chain and exchange contracts together, so they
+    /// can't disagree.
+    #[serde(default)]
+    pub network: PredictNetwork,
+
+    /// Predict.fun addresses to copy. Separate from `bot.wallets_to_track`,
+    /// since a wallet's address differs between venues.
+    #[serde(default)]
+    pub wallets_to_track: Vec<String>,
+}
+
 /// Market eligibility filter.
 ///
 /// Behavior:
@@ -196,6 +226,8 @@ pub struct Credentials {
     pub api_key: Option<String>,
     pub api_secret: Option<String>,
     pub api_passphrase: Option<String>,
+    pub predict_api_key: Option<String>,
+    pub predict_account: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -206,10 +238,13 @@ struct CredentialsFile {
 #[derive(Debug, Deserialize)]
 struct CredentialsBot {
     private_key: String,
+    #[serde(default)]
     funder_address: String,
     api_key: Option<String>,
     api_secret: Option<String>,
     api_passphrase: Option<String>,
+    predict_api_key: Option<String>,
+    predict_account: Option<String>,
 }
 
 impl AppConfig {
@@ -234,6 +269,8 @@ impl AppConfig {
                 api_key: parsed.bot.api_key,
                 api_secret: parsed.bot.api_secret,
                 api_passphrase: parsed.bot.api_passphrase,
+                predict_api_key: parsed.bot.predict_api_key,
+                predict_account: parsed.bot.predict_account,
             };
         }
 
@@ -243,6 +280,12 @@ impl AppConfig {
         }
         if let Ok(addr) = std::env::var("PM_FUNDER_ADDRESS") {
             cfg.credentials.funder_address = addr;
+        }
+        if let Ok(key) = std::env::var("PM_PREDICT_API_KEY") {
+            cfg.credentials.predict_api_key = Some(key);
+        }
+        if let Ok(account) = std::env::var("PM_PREDICT_ACCOUNT") {
+            cfg.credentials.predict_account = Some(account);
         }
 
         Ok(cfg)

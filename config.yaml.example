@@ -8,6 +8,7 @@ bot:
 
   # Your Polymarket proxy/funder address. Find it on polymarket.com
   # under your profile → "Deposit" — the address USDC was sent to.
+  # Polymarket only; Predict.fun doesn't use it.
   funder_address: "0x0000000000000000000000000000000000000000"
 
   # Optional: pre-issued CLOB API credentials (L2 auth).
@@ -15,3 +16,12 @@ bot:
   # api_key: ""
   # api_secret: ""
   # api_passphrase: ""
+
+  # Predict.fun. Required on mainnet, not on testnet. Request a key from Predict.
+  # predict_api_key: ""
+
+  # Set this only if you trade through a Predict Account (the web app's smart
+  # wallet): your deposit address, with private_key set to the Privy wallet
+  # exported from your account settings. Leave it out to trade from private_key's
+  # own address.
+  # predict_account: "0x0000000000000000000000000000000000000000"

@@ -12,10 +12,10 @@
 [![Stars](https://img.shields.io/github/stars/tarpboi/Prediction-Markets-Trading-Bot-Toolkits?style=flat-square&color=6e40c9)](https://github.com/tarpboi/Prediction-Markets-Trading-Bot-Toolkits/stargazers)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
 [![Tokio](https://img.shields.io/badge/async-tokio-blue.svg?style=flat-square)](https://tokio.rs/)
-[![Venues](https://img.shields.io/badge/平台仓库-20-6e40c9.svg?style=flat-square)](#平台覆盖)
+[![Venues](https://img.shields.io/badge/平台仓库-21-6e40c9.svg?style=flat-square)](#平台覆盖)
 
 > **一套执行核心。一套风控层。覆盖所有平台。**
-> 十款策略机器人共用同一套引擎与平台无关的适配层——接入新市场只需写**一个适配器**，而不是重建机器人。二十个平台已映射到该接口，各有专属仓库。
+> 十款策略机器人共用同一套引擎与平台无关的适配层——接入新市场只需写**一个适配器**，而不是重建机器人。二十一个平台已映射到该接口，各有专属仓库。
 
 <br/>
 
@@ -118,15 +118,15 @@ cargo run --release -- run copy-trading
 | # | 策略 | 一句话优势 | 关键规格 |
 |---|------|-----------|----------|
 | 1 | 🎯 **跟单交易** | 镜像已被证明拥有 alpha 的钱包 | 多钱包 · FAK/GTD · 熔断器 |
-| 2 | ⚡ **BTC 5m / 15m / 1h 套利** | 短窗口 BTC 涨跌上的速度优势 | ~42ms 端到端 · FAK |
+| 2 | ⚡ **BTC 5m / 15m / 1h 套利** | 短窗口 BTC 涨跌上的速度优势 | FAK · 短窗口 |
 | 3 | 💰 **跨平台套利** | 锁价差，不锁方向 | Polymarket ↔ Kalshi ↔ PredictIt · 对冲双腿 |
 | 4 | 🎯 **方向性套利** | 套利底仓（Up + Down < $1），再向更有优势的一侧倾斜 | 对冲底仓 · 仅限价单 |
 | 5 | 📈 **价差耕作** | 一千次 0.5¢ 小胜复利成大数字 | 买卖价差捕获 · 单笔 P&L |
-| 6 | 🏆 **体育执行** | 点击。成交。完成——不到 50ms | NBA / NFL / 足球 · &lt;50ms FAK |
+| 6 | 🏆 **体育执行** | 点击。成交。完成 | NBA / NFL / 足球 · FAK |
 | 7 | 🎯 **结算狙击** | 95¢ 近确定性 → 确定的 $1.00 派息 | 确定性扫描 · 持有至结算 |
 | 8 | 📊 **订单簿失衡** | 信号本身就是订单簿——无需外部数据源 | 实时 OBI · 500ms 刷新 |
 | 9 | 💰 **做市商** | 当庄家，不当赌客 | 双边 GTD · 库存倾斜 |
-| 10 | ⚡ **链上鲸鱼信号** | 比公开仓位 API 早 3–30 秒 | Polygon 区块订阅 · ABI calldata 解码 |
+| 10 | ⚡ **链上鲸鱼信号** | 领先于公开仓位 API | Polygon 区块订阅 · ABI calldata 解码 |
 
 <details>
 <summary><b>几款旗舰优势的实际原理</b>（点击展开）</summary>
@@ -171,11 +171,14 @@ cargo run --release -- run copy-trading
 
 引擎在设计上**与平台无关**：任何提供订单簿或持仓数据的平台，都可以通过单一适配器接入——接入新市场意味着写一个适配器，而不是重建一个机器人。
 
-二十个平台已映射到该接口，各有专属仓库。**Polymarket 是参考实现**，引擎正是基于它构建与测试；各平台仓库保存的是平台元数据，交易代码请克隆本仓库。
+二十一个平台已映射到该接口，各有专属仓库。**Polymarket 是参考实现**，引擎正是基于它构建与测试；各平台仓库保存的是平台元数据，交易代码请克隆本仓库。
 
 | 平台 | 类型 | 策略 |
 |---|---|---|
+| [**Predict.fun**](https://github.com/tarpboi/Predict.fun) | 去中心化（BNB Chain / USDT） | 适配器尚未接入 |
 | [**Polymarket**](https://github.com/tarpboi/Polymarket) | 去中心化（Polygon / USDC） | 参考实现——全部十款 |
+
+> **Predict.fun** 在 BNB Chain 上以 USDT 结算，采用与 Polymarket 相同的 CTF 交易所合约设计，并提供 5 分钟和 15 分钟的加密货币回合，因此非常适合本引擎。如果希望尽快接入其适配器，[请在 Telegram 上联系](https://t.me/tarpboi)。
 
 ### 传统 / 合规平台
 
@@ -279,7 +282,7 @@ Rust 编写，基于 Tokio 异步，一套执行核心支撑所有策略与所�
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 [![Telegram](https://img.shields.io/badge/💬_Telegram-@tarpboi-229ED9?style=flat-square&logo=telegram&logoColor=white)](https://t.me/tarpboi)
 
-**为 Polymarket、Kalshi、Limitless 等预测市场社区而构建**
+**为 Predict.fun、Polymarket、Kalshi、Limitless 等预测市场社区而构建**
 
 [返回顶部](#预测市场工具包)
 

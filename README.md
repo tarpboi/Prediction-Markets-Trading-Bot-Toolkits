@@ -12,10 +12,10 @@
 [![Stars](https://img.shields.io/github/stars/tarpboi/Prediction-Markets-Trading-Bot-Toolkits?style=flat-square&color=6e40c9)](https://github.com/tarpboi/Prediction-Markets-Trading-Bot-Toolkits/stargazers)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
 [![Tokio](https://img.shields.io/badge/async-tokio-blue.svg?style=flat-square)](https://tokio.rs/)
-[![Venues](https://img.shields.io/badge/venues-20_repos-6e40c9.svg?style=flat-square)](#venue-coverage)
+[![Venues](https://img.shields.io/badge/venues-21_repos-6e40c9.svg?style=flat-square)](#venue-coverage)
 
 > **One execution core. One risk layer. Every venue.**
-> Ten strategy bots share a single engine and a venue-agnostic adapter stack — adding a market means writing **one adapter**, not rebuilding a bot. Twenty venues are mapped to that interface, each with its own repo.
+> Ten strategy bots share a single engine and a venue-agnostic adapter stack — adding a market means writing **one adapter**, not rebuilding a bot. Twenty-one venues are mapped to that interface, each with its own repo.
 
 <br/>
 
@@ -173,13 +173,16 @@ The engine is venue-agnostic **by design**: any platform exposing an order book 
 position feed plugs in through a single adapter, so adding a market means writing
 one adapter rather than rebuilding a bot.
 
-Twenty venues are mapped to that interface, each with a repo of its own. **Polymarket
+Twenty-one venues are mapped to that interface, each with a repo of its own. **Polymarket
 is the reference implementation** the engine is built and tested against; the
 per-venue repos hold venue metadata, so clone this repo for the trading code.
 
 | Venue | Type | Strategies |
 |---|---|---|
+| [**Predict.fun**](https://github.com/tarpboi/Predict.fun) | Decentralized (BNB Chain / USDT) | Adapter not wired yet |
 | [**Polymarket**](https://github.com/tarpboi/Polymarket) | Decentralized (Polygon / USDC) | Reference implementation — all ten |
+
+> **Predict.fun** settles in USDT on BNB Chain and uses the same CTF-exchange contract design as Polymarket, with 5- and 15-minute crypto rounds, so it's a natural fit for this engine. [Ask on Telegram](https://t.me/tarpboi) if you want its adapter sooner.
 
 ### Traditional / Regulated
 
@@ -285,7 +288,7 @@ Built and maintained actively. Whether you want to **run the bots**, request a *
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 [![Telegram](https://img.shields.io/badge/💬_Telegram-@tarpboi-229ED9?style=flat-square&logo=telegram&logoColor=white)](https://t.me/tarpboi)
 
-**Built for the Prediction Markets including Polymarket, Kalshi, Limitless etc**
+**Built for the Prediction Markets including Predict.fun, Polymarket, Kalshi, Limitless etc**
 
 [Back to top](#prediction-market-toolkits)
 

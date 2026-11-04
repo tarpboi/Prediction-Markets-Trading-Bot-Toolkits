@@ -99,6 +99,54 @@ impl BookSnapshot {
         self.asks.first()
     }
 
+    pub fn mid(&self) -> Option<f64> {
+        Some((self.best_bid()?.price + self.best_ask()?.price) / 2.0)
+    }
+
+    pub fn spread(&self) -> Option<f64> {
+        Some(self.best_ask()?.price - self.best_bid()?.price)
+    }
+
+    /// Mid weighted toward the thinner side of the touch, where price tends to go.
+    pub fn microprice(&self) -> Option<f64> {
+        let (bid, ask) = (self.best_bid()?, self.best_ask()?);
+        let depth = bid.size + ask.size;
+        if depth <= 0.0 {
+            return self.mid();
+        }
+        Some((bid.price * ask.size + ask.price * bid.size) / depth)
+    }
+
+    /// Size imbalance over the top `levels`, from -1 (all asks) to 1 (all bids).
+    pub fn imbalance(&self, levels: usize) -> Option<f64> {
+        let bids: f64 = self.bids.iter().take(levels).map(|l| l.size).sum();
+        let asks: f64 = self.asks.iter().take(levels).map(|l| l.size).sum();
+        if self.bids.is_empty() || self.asks.is_empty() || bids + asks <= 0.0 {
+            return None;
+        }
+        Some((bids - asks) / (bids + asks))
+    }
+
+    /// The other outcome's view of a Yes-quoted book: a Yes bid at `p` is a No
+    /// ask at `1 - p`, and vice versa.
+    pub fn mirrored(&self) -> Self {
+        let flip = |levels: &[BookLevel]| -> Vec<BookLevel> {
+            levels
+                .iter()
+                .map(|l| BookLevel {
+                    // Rounded so `1 - 0.07` is 0.93: a limit read from this level
+                    // has to match the price the venue will compute exactly.
+                    price: ((1.0 - l.price) * 1e9).round() / 1e9,
+                    size: l.size,
+                })
+                .collect()
+        };
+        Self {
+            bids: flip(&self.asks),
+            asks: flip(&self.bids),
+        }
+    }
+
     /// USD-equivalent depth on a given side within `levels` from the top.
     pub fn depth_usd(&self, side: Side, levels: usize) -> f64 {
         let book = match side {
@@ -109,5 +157,21 @@ impl BookSnapshot {
             .take(levels)
             .map(|lv| lv.price * lv.size)
             .sum()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn mirrored_prices_are_exact_decimals() {
+        let book = BookSnapshot {
+            bids: vec![BookLevel { price: 0.07, size: 1.0 }],
+            asks: vec![BookLevel { price: 0.01, size: 1.0 }],
+        };
+        let no = book.mirrored();
+        assert_eq!(no.best_ask().unwrap().price, 0.93);
+        assert_eq!(no.best_bid().unwrap().price, 0.99);
     }
 }

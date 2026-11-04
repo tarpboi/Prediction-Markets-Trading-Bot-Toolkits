@@ -34,6 +34,10 @@ pub struct AppConfig {
     #[serde(default)]
     pub tp_sl: TpSlConfig,
 
+    /// Hard caps and tunables for the strategy bots other than copy trading.
+    #[serde(default)]
+    pub strategies: StrategiesConfig,
+
     /// Loaded from `config.yaml`. Not serialised back out.
     #[serde(skip)]
     pub credentials: Credentials,
@@ -182,6 +186,310 @@ impl FiltersConfig {
         !self.slug_allow.is_empty()
             || !self.categories_allow.is_empty()
             || !self.tags_allow.is_empty()
+    }
+}
+
+/// Limits every strategy bot runs under, enforced by [`crate::bot::runtime::Broker`].
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(default)]
+pub struct StrategyLimits {
+    /// Largest single order.
+    pub max_order_usd: f64,
+    /// Open cost plus resting buys in one market.
+    pub max_market_usd: f64,
+    /// Open cost plus resting buys across all markets.
+    pub max_total_usd: f64,
+    /// Realised plus marked loss that halts new entries and pulls quotes.
+    pub max_loss_usd: f64,
+}
+
+impl Default for StrategyLimits {
+    fn default() -> Self {
+        Self {
+            max_order_usd: 5.0,
+            max_market_usd: 25.0,
+            max_total_usd: 100.0,
+            max_loss_usd: 25.0,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(default)]
+pub struct StrategiesConfig {
+    pub poll_secs: u64,
+    /// How often the market list is read again.
+    pub rescan_secs: u64,
+    /// Lifetime signed into every resting order, so a crash can't leave one
+    /// open forever.
+    pub quote_ttl_secs: u64,
+    pub limits: StrategyLimits,
+    pub btc_arb: BtcArbConfig,
+    pub cross_arb: CrossArbConfig,
+    pub directional_arb: DirectionalArbConfig,
+    pub spread_farming: SpreadFarmingConfig,
+    pub sports: SportsConfig,
+    pub resolution_sniper: ResolutionSniperConfig,
+    pub orderbook_imbalance: OrderbookImbalanceConfig,
+    pub market_making: MarketMakingConfig,
+    pub whale_signal: WhaleSignalConfig,
+}
+
+impl Default for StrategiesConfig {
+    fn default() -> Self {
+        Self {
+            poll_secs: 5,
+            rescan_secs: 300,
+            quote_ttl_secs: 300,
+            limits: Default::default(),
+            btc_arb: Default::default(),
+            cross_arb: Default::default(),
+            directional_arb: Default::default(),
+            spread_farming: Default::default(),
+            sports: Default::default(),
+            resolution_sniper: Default::default(),
+            orderbook_imbalance: Default::default(),
+            market_making: Default::default(),
+            whale_signal: Default::default(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(default)]
+pub struct BtcArbConfig {
+    /// Price feed symbols to trade, as the venue names them.
+    pub symbols: Vec<String>,
+    /// Model value minus cost and fee required to buy, in price units.
+    pub min_edge: f64,
+    pub order_usd: f64,
+    /// No new entries this close to the end of a round.
+    pub min_secs_left: i64,
+    /// Lowest volatility the model will assume, per root second.
+    pub vol_floor: f64,
+}
+
+impl Default for BtcArbConfig {
+    fn default() -> Self {
+        Self {
+            symbols: vec!["BTCUSDT".into()],
+            min_edge: 0.03,
+            order_usd: 5.0,
+            min_secs_left: 30,
+            vol_floor: 0.00005,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(default)]
+pub struct CrossArbConfig {
+    /// Locked profit per pair after fees required to report an opportunity.
+    pub min_edge: f64,
+    pub order_usd: f64,
+    /// Assumed Polymarket taker fee, as `bps x min(p, 1 - p)` per share.
+    pub polymarket_fee_bps: u32,
+    /// Linked markets checked per tick.
+    pub markets_per_tick: usize,
+}
+
+impl Default for CrossArbConfig {
+    fn default() -> Self {
+        Self {
+            min_edge: 0.02,
+            order_usd: 5.0,
+            polymarket_fee_bps: 200,
+            markets_per_tick: 20,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(default)]
+pub struct DirectionalArbConfig {
+    /// Most the Yes and No bids may add up to. `0.99` requires a 1c floor.
+    pub max_basket_cost: f64,
+    /// Book-implied edge on a side, in cents, before tilting toward it.
+    pub tilt_threshold_cents: f64,
+    /// Largest size ratio of the tilted side to the hedge side.
+    pub max_tilt_ratio: f64,
+    /// Size of the smaller side.
+    pub order_usd: f64,
+    pub max_markets: usize,
+    /// Stop quoting this close to a market's end.
+    pub min_secs_left: i64,
+}
+
+impl Default for DirectionalArbConfig {
+    fn default() -> Self {
+        Self {
+            max_basket_cost: 0.99,
+            tilt_threshold_cents: 1.5,
+            max_tilt_ratio: 3.0,
+            order_usd: 2.0,
+            max_markets: 5,
+            min_secs_left: 3600,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(default)]
+pub struct SpreadFarmingConfig {
+    /// Narrowest spread worth quoting into.
+    pub min_spread: f64,
+    pub order_usd: f64,
+    pub max_markets: usize,
+    /// A position still unsold after this long is sold at the bid.
+    pub max_hold_secs: i64,
+    /// Stop quoting this close to a market's end.
+    pub min_secs_left: i64,
+}
+
+impl Default for SpreadFarmingConfig {
+    fn default() -> Self {
+        Self {
+            min_spread: 0.04,
+            order_usd: 5.0,
+            max_markets: 5,
+            max_hold_secs: 3600,
+            min_secs_left: 3600,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(default)]
+pub struct SportsConfig {
+    /// Player props outnumber fixtures by far, so they're hidden unless asked for.
+    pub include_props: bool,
+    /// Largest number of markets a listing prints.
+    pub list_limit: usize,
+}
+
+impl Default for SportsConfig {
+    fn default() -> Self {
+        Self {
+            include_props: false,
+            list_limit: 25,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(default)]
+pub struct ResolutionSniperConfig {
+    pub min_price: f64,
+    pub max_price: f64,
+    /// Payout minus price and fee required to buy.
+    pub min_net_edge: f64,
+    pub order_usd: f64,
+    /// Only markets due to end within this long.
+    pub max_secs_to_end: i64,
+}
+
+impl Default for ResolutionSniperConfig {
+    fn default() -> Self {
+        Self {
+            min_price: 0.95,
+            max_price: 0.99,
+            min_net_edge: 0.005,
+            order_usd: 5.0,
+            max_secs_to_end: 86_400,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(default)]
+pub struct OrderbookImbalanceConfig {
+    /// Levels from the touch counted on each side.
+    pub levels: usize,
+    /// Absolute imbalance in [0, 1] required to enter.
+    pub threshold: f64,
+    /// Trade against the heavy side rather than with it.
+    pub fade: bool,
+    pub max_spread: f64,
+    pub order_usd: f64,
+    pub take_profit: f64,
+    pub stop_loss: f64,
+    pub max_hold_secs: i64,
+    pub max_markets: usize,
+    /// Positions open at once. On a live book the signal fires across many markets
+    /// at the same moment, and each entry pays the spread.
+    pub max_positions: usize,
+    /// Only trade prices in this band. A 3c spread is 60% of a 5c price.
+    pub min_price: f64,
+    pub max_price: f64,
+}
+
+impl Default for OrderbookImbalanceConfig {
+    fn default() -> Self {
+        Self {
+            levels: 3,
+            threshold: 0.6,
+            fade: false,
+            max_spread: 0.03,
+            order_usd: 5.0,
+            take_profit: 0.02,
+            stop_loss: 0.02,
+            max_hold_secs: 600,
+            max_markets: 50,
+            max_positions: 5,
+            min_price: 0.15,
+            max_price: 0.85,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(default)]
+pub struct MarketMakingConfig {
+    /// Distance from the mid to each quote.
+    pub half_spread: f64,
+    pub order_usd: f64,
+    /// Price shift per USD of net inventory.
+    pub skew_per_usd: f64,
+    /// Quotes further than this from where they should be are replaced.
+    pub requote_distance: f64,
+    pub max_markets: usize,
+    /// Stop quoting this close to a market's end.
+    pub min_secs_left: i64,
+}
+
+impl Default for MarketMakingConfig {
+    fn default() -> Self {
+        Self {
+            half_spread: 0.02,
+            order_usd: 5.0,
+            skew_per_usd: 0.001,
+            requote_distance: 0.01,
+            max_markets: 5,
+            min_secs_left: 3600,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(default)]
+pub struct WhaleSignalConfig {
+    /// With no wallets in `predict_fun.wallets_to_track`, follow any taker this large.
+    pub min_trade_usd: f64,
+    pub order_usd: f64,
+    /// Each wallet's own bucket: the most it can have opened through this bot.
+    pub per_wallet_max_usd: f64,
+    /// Never follow into a price above this.
+    pub max_price: f64,
+}
+
+impl Default for WhaleSignalConfig {
+    fn default() -> Self {
+        Self {
+            min_trade_usd: 500.0,
+            order_usd: 5.0,
+            per_wallet_max_usd: 25.0,
+            max_price: 0.9,
+        }
     }
 }
 

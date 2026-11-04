@@ -1,8 +1,8 @@
 //! Polymarket Toolkits — shared library.
 //!
-//! Multi-venue prediction-market trading engine. The production-ready surface
-//! is the copy-trading bot (see [`bot::copy_trading`]). All other strategies
-//! expose typed stubs over the same engine and risk layer.
+//! Multi-venue prediction-market trading engine. Ten strategies share one
+//! engine and risk layer (see [`bot`]). They default to dry run, and no live order
+//! has been sent through them yet.
 
 pub mod bot;
 pub mod config;

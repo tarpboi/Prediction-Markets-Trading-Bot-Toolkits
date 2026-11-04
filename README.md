@@ -111,37 +111,39 @@ Not sure which strategy fits your venue, capital size, or risk budget? Ask.
 
 ## Strategies
 
-Ten strategies, one execution core. Each targets a distinct, well-defined market edge, and every one of them runs on the same engine: a Polymarket CLOB client, an order executor with EIP-712 signing and a real dry-run path, a risk guard, position monitor and store, market cache, and on-chain ingestion off Polygon logs. Pick the edge that fits your thesis — the infrastructure underneath is shared.
+Ten strategies, one execution core: a venue adapter, an order executor with EIP-712 signing and a real dry-run path, hard spending limits, a risk guard, and position tracking. Pick the edge that fits your thesis — the infrastructure underneath is shared.
 
-> 📦 Every bot runs on the shared engine and [safety layer](#safety), with full dry-run support. The [per-venue repos](#venue-coverage) hold venue metadata — the trading code is here.
+> ⚠️ **Status: all ten run on [Predict.fun](#venue-coverage) in dry run against live books. No live order has been sent through any of them yet**, and none has a track record. Dry-run P&L checks the plumbing and isn't a forecast. Stay in dry run until you've proven a strategy yourself with a small amount.
 
-| # | Strategy | Edge in one line | Key spec |
-|---|----------|------------------|----------|
-| 1 | 🎯 **Copy Trading** | Mirror wallets that already proved they have alpha | Multi-wallet · FAK/GTD · circuit breaker |
-| 2 | ⚡ **BTC 5m / 15m / 1hr Arbitrage** | Speed on short-window BTC Up/Down | FAK · short-window |
-| 3 | 💰 **Cross-Market Arbitrage** | Lock the spread, not the direction | Polymarket ↔ Kalshi ↔ PredictIt · hedged legs |
-| 4 | 🎯 **Directional Arbitrage** | Arb base (Up + Down < $1), then tilt toward the side with more edge | Hedged base · limit-only |
-| 5 | 📈 **Spread Farming** | A thousand 0.5¢ wins compound into one number | Bid-ask capture · per-trade P&L |
-| 6 | 🏆 **Sports Execution** | Click. Filled. Done | NBA / NFL / Soccer · FAK |
-| 7 | 🎯 **Resolution Sniper** | 95¢ near-certainty → guaranteed $1.00 payout | Certainty scan · hold to resolution |
-| 8 | 📊 **Orderbook Imbalance** | The signal *is* the order book — no external feeds | Live OBI · 500ms refresh |
-| 9 | 💰 **Market Making** | Be the house, not the gambler | Two-sided GTD · inventory skew |
-| 10 | ⚡ **On-Chain Whale Signal** | Ahead of the public positions API | Polygon block sub · ABI calldata decode |
+> 📦 Every bot runs on the shared engine and [safety layer](#safety). The [per-venue repos](#venue-coverage) hold venue metadata — the trading code is here.
+
+| # | Strategy | What it does | Key spec |
+|---|----------|--------------|----------|
+| 1 | 🎯 **Copy Trading** | Mirror one wallet's fills at your scale | Sizing and risk pipeline · TP/SL · circuit breaker |
+| 2 | ⚡ **BTC 5m / 15m / 1hr Arbitrage** | Buy Up/Down rounds when the book lags the underlying | Taker · model value · held to round end, can lose |
+| 3 | 💰 **Cross-Market Arbitrage** | Find gaps between linked markets on two venues | Predict.fun ↔ Polymarket · **reports only, no live trading** |
+| 4 | 🎯 **Directional Arbitrage** | Rest Yes + No bids under $1, tilted toward the side with more edge | Limit-only · hedged only once both legs fill |
+| 5 | 📈 **Spread Farming** | Capture the bid-ask spread, one round trip at a time | Post-only · hold limit · per-trade P&L |
+| 6 | 🏆 **Sports Execution** | Type it. Filled. Done | Terminal tool · all-or-nothing · same limits |
+| 7 | 🎯 **Resolution Sniper** | Buy near-certain outcomes about to end, hold to the payout | Certainty scan · a surprise costs dozens of wins |
+| 8 | 📊 **Orderbook Imbalance** | The signal *is* the order book — no external feeds | Near-touch imbalance · target, stop and time limit |
+| 9 | 💰 **Market Making** | Quote both sides, leaning away from your inventory | Post-only · inventory skew · expiry on every quote |
+| 10 | ⚡ **Whale Signal** | Follow many wallets, or any large taker | Per-wallet risk buckets · venue trade feed |
 
 <details>
 <summary><b>How the flagship edges actually work</b> (click to expand)</summary>
 
 <br/>
 
-**🎯 Copy Trading —** Point the bot at one or more wallets with a proven on-chain record. It mirrors their fills at your chosen scale, with per-wallet caps, FAK/GTD order types, and a circuit breaker that halts on abnormal bursts. Pick who to follow from any wallet with a verifiable on-chain record.
+**🎯 Copy Trading —** Point the bot at a wallet with a verifiable record. It mirrors the wallet's fills at your chosen scale, with exposure caps and a circuit breaker that halts on abnormal bursts.
 
-**💰 Cross-Market Arbitrage —** The same real-world question is often listed on Polymarket, Kalshi *and* PredictIt at slightly different prices. The engine matches the same contract across venues (strict matching — no fuzzy false pairs), and captures the gap **only when it beats round-trip fees**. Cross-listed markets are mostly efficient, so this is a patience game: it waits for a real dislocation instead of forcing trades.
+**💰 Cross-Market Arbitrage —** Predict.fun publishes which Polymarket market each of its markets is linked to, so the engine pairs them on that link rather than on matching titles, and reports a gap **only when it beats fees on both venues**. It doesn't trade: a live version has to send both legs, and one filled leg without the other is a naked position. Check that both venues resolve a question the same way before trusting a link.
 
-**🎯 Directional Arbitrage —** Buy the Yes + No basket while it costs under \$1 (a structural arb base), then tilt extra size onto the side with more upside. Limit-only, hedged base — structure improves expected value instead of betting on a hunch.
+**🎯 Directional Arbitrage —** Rest bids on Yes and No that total under \$1, then tilt extra size onto the side the book favours. The floor only applies once both legs have filled: until then it's an ordinary directional position. On a venue with one shared book, like Predict.fun, this has to be built from resting orders, because taking both asks always costs more than \$1.
 
-**🎯 Resolution Sniper —** Scan for near-certainty contracts (e.g. 95¢+) where the market has effectively resolved but hasn't paid out, and hold to \$1.00. High win-rate, low per-trade return — it compounds on volume, not on swings.
+**🎯 Resolution Sniper —** Scan markets about to end for an outcome at 95¢ or more, and hold to the payout. Each win is small and each loss costs nearly the whole stake, so buying at 97¢ only pays if the outcome is right more than 97% of the time. The market's price is the only evidence: it doesn't check the real-world result.
 
-**📊 Orderbook Imbalance —** No external feeds, no oracle: the signal *is* the book. Near-touch bid/ask depth skew becomes a short-term directional read, refreshed every 500ms.
+**📊 Orderbook Imbalance —** No external feeds, no oracle: the signal *is* the book. Near-touch depth skew becomes a short-term directional read, polled every few seconds. Displayed size is cheap to fake, and every entry pays the spread.
 
 </details>
 
@@ -173,26 +175,28 @@ The engine is venue-agnostic **by design**: any platform exposing an order book 
 position feed plugs in through a single adapter, so adding a market means writing
 one adapter rather than rebuilding a bot.
 
-Twenty-one venues are mapped to that interface, each with a repo of its own. **Polymarket
-is the reference implementation** the engine is built and tested against; the
+Twenty-one venues are mapped to that interface, each with a repo of its own. The
 per-venue repos hold venue metadata, so clone this repo for the trading code.
 
 | Venue | Type | Strategies |
 |---|---|---|
-| [**Predict.fun**](https://github.com/tarpboi/Predict.fun) | Decentralized (BNB Chain / USDT) | Copy Trading — dry-run verified on testnet; live orders not yet tested |
-| [**Polymarket**](https://github.com/tarpboi/Polymarket) | Decentralized (Polygon / USDC) | Reference implementation — all ten |
+| [**Predict.fun**](https://github.com/tarpboi/Predict.fun) | Decentralized (BNB Chain / USDT) | All ten — dry-run tested on testnet and mainnet books; live orders not yet tested (Cross-Market reports gaps only) |
+| [**Polymarket**](https://github.com/tarpboi/Polymarket) | Decentralized (Polygon / USDC) | Copy Trading — order path predates CLOB V2 and needs re-checking |
 
-> **Predict.fun** settles in USDT on BNB Chain and uses the same CTF-exchange contract design as Polymarket, with 5- and 15-minute crypto rounds. Copy Trading connects to it today: the adapter follows a wallet's fills through Predict's API, prices orders from the live book, and signs them for all four exchange contracts. Signatures match Predict's official SDK byte for byte, and the full pipeline has run in dry-run on testnet. **Live order submission hasn't been tested yet**, so stay in dry-run until you've proven it with a small amount.
+> **Predict.fun** settles in USDT on BNB Chain and uses the same CTF-exchange contract design as Polymarket, with short crypto rounds. Signatures and limit-order amounts match Predict's official SDK byte for byte, and every strategy has run in dry run against the testnet API, and all but Copy Trading against mainnet books as well. **Live order submission hasn't been tested yet**, so stay in dry run until you've proven it with a small amount.
 
 ```bash
-# Build from source: the adapter is not in a release yet. Defaults to testnet.
+# Build from source: this isn't in a release yet. Defaults to testnet and dry run.
 cargo run --release -- --venue predict-fun check-venue
 
-# Add a wallet to predict_fun.wallets_to_track in config.json first.
-cargo run --release -- --venue predict-fun run copy-trading
+# Any of: copy-trading btc-arb cross-arb directional-arb spread-farming sports
+#         resolution-sniper orderbook-imbalance market-making whale-signal
+cargo run --release -- --venue predict-fun run market-making
 ```
 
-Mainnet needs `"network": "mainnet"` in `config.json` and an API key from Predict. Before trading live, set approvals once with the SDK's `setApprovals`, use a dedicated wallet, and read Predict's [Terms of Service](https://docs.predict.fun/terms-of-service): they bar several jurisdictions, including the US and UK, and signing in accepts them. In October 2026 Predict reported about 400,000 USDT in unauthorized wallet transfers; the [venue repo](https://github.com/tarpboi/Predict.fun) has details.
+Copy Trading needs a wallet in `predict_fun.wallets_to_track` in `config.json`. Tune each strategy and its hard limits under `strategies` there. The `filters` allowlist applies to these bots too, and the shipped one (`Politics`, `Sports`, `Crypto`) leaves out most of Predict's markets, so review it first. BTC rounds settle on Binance's top of book: where Binance isn't reachable, that bot uses a Coinbase price and stays on paper.
+
+Mainnet needs `"network": "mainnet"` in `config.json` and an API key from Predict. Before trading live, set approvals once with the SDK's `setApprovals`, use a dedicated wallet, and read Predict's [Terms of Service](https://docs.predict.fun/terms-of-service): they bar several jurisdictions, including the US and UK, and signing in accepts them. The bots don't redeem winnings, so redeem them on Predict. In October 2026 Predict reported about 400,000 USDT in unauthorized wallet transfers; the [venue repo](https://github.com/tarpboi/Predict.fun) has details.
 
 ### Traditional / Regulated
 
@@ -254,6 +258,8 @@ Rust, async on Tokio, one execution core behind every strategy and venue. The ad
 | **Depth Guard** | Validates orderbook liquidity before every order |
 | **Dry Run** | Full execution path runs without placing real orders |
 | **Trade Floor** | Minimum size enforcement against negative-EV micro-trades |
+| **Spending Limits** | Hard caps per order, per market and in total, plus a loss limit that halts new entries. Every strategy order passes through them |
+| **Existing Positions** | What a wallet already holds counts toward the limits, and no strategy will sell it |
 
 The circuit breaker fires when consecutive large trades exceed the configured threshold, or when orderbook depth falls below the minimum. Once tripped, execution is blocked for the cooldown duration. Trip state and cooldown are logged and visible in the TUI.
 

@@ -147,7 +147,7 @@ fn draw(f: &mut Frame, cfg: &AppConfig, state: &mut ListState) {
         .iter()
         .enumerate()
         .map(|(_, k)| {
-            let status = if k.is_production() { "✅" } else { "🚧" };
+            let status = if matches!(k, BotKind::CrossArb) { "👀" } else { "🧪" };
             let line = Line::from(vec![
                 Span::raw(format!("{status}  ")),
                 Span::styled(k.label(), Style::default().fg(Color::White)),
@@ -187,47 +187,38 @@ fn draw(f: &mut Frame, cfg: &AppConfig, state: &mut ListState) {
 }
 
 fn bot_detail(kind: BotKind) -> Vec<Line<'static>> {
-    let (status_line, description) = match kind {
-        BotKind::CopyTrading => (
-            "✅ Production-ready",
-            "Mirror top wallets automatically. Polygon WebSocket ingestion, EIP-712 signed CTF orders, full circuit breaker + depth guard.",
-        ),
-        BotKind::BtcArb => (
-            "🚧 In development",
-            "BTC Up/Down arbitrage across 5m / 15m / 1hr windows.",
-        ),
-        BotKind::CrossArb => (
-            "🚧 In development",
-            "Polymarket ↔ Kalshi cross-venue arbitrage with hedged execution.",
-        ),
-        BotKind::DirectionalArb => (
-            "🚧 In development",
-            "Arbitrage base (Up + Down < $1) tilted toward the side with model edge; smaller side hedges. Limit orders only.",
-        ),
-        BotKind::SpreadFarming => (
-            "🚧 In development",
-            "Systematic bid-ask spread capture with consistent sizing.",
-        ),
-        BotKind::Sports => (
-            "🚧 In development",
-            "Click-to-FAK execution surface over live sports markets.",
-        ),
-        BotKind::ResolutionSniper => (
-            "🚧 In development",
-            "Near-certainty buys held to the $1.00 resolution payout.",
-        ),
-        BotKind::OrderbookImbalance => (
-            "🚧 In development",
-            "Live OBI tracker — fade the dominant side, no external feeds.",
-        ),
-        BotKind::MarketMaking => (
-            "🚧 In development",
-            "Two-sided GTD quoting with inventory-aware skew.",
-        ),
-        BotKind::WhaleSignal => (
-            "🚧 In development",
-            "Fan-out mode: subscribe to many whales, each in its own risk bucket.",
-        ),
+    let status_line = kind.status();
+    let description = match kind {
+        BotKind::CopyTrading => {
+            "Mirror one wallet's fills through the sizing, eligibility and risk pipeline. Polymarket and Predict.fun."
+        }
+        BotKind::BtcArb => {
+            "Value up/down rounds from the underlying and buy when the book lags. Held to the end of the round, so it can lose."
+        }
+        BotKind::CrossArb => {
+            "Compare Predict.fun with its linked Polymarket markets and report gaps that clear fees. Trades nothing."
+        }
+        BotKind::DirectionalArb => {
+            "Rest Yes and No bids totalling under $1, tilted toward the side the book favours. Limit orders only."
+        }
+        BotKind::SpreadFarming => {
+            "Bid inside a wide spread, then offer what filled inside the ask, one round trip at a time."
+        }
+        BotKind::Sports => {
+            "List sports fixtures and cross the spread from the terminal when you say so. Under the same limits."
+        }
+        BotKind::ResolutionSniper => {
+            "Buy near-certain outcomes in markets about to end and hold to the payout. A surprise costs dozens of wins."
+        }
+        BotKind::OrderbookImbalance => {
+            "Trade near-touch size imbalance, exiting on a fixed target, stop or time limit. No external feeds."
+        }
+        BotKind::MarketMaking => {
+            "Two-sided post-only quotes with inventory skew and expiry on every quote."
+        }
+        BotKind::WhaleSignal => {
+            "Follow many wallets, or any large taker, each wallet with its own spending bucket."
+        }
     };
     vec![
         Line::from(vec![

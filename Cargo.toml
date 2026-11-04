@@ -12,7 +12,7 @@ path = "src/main.rs"
 
 [dependencies]
 # Async runtime
-tokio = { version = "1", features = ["macros", "rt-multi-thread", "time", "sync", "signal", "io-util", "net", "fs"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "time", "sync", "signal", "io-util", "io-std", "net", "fs"] }
 async-trait = "0.1"
 futures-util = "0.3"
 

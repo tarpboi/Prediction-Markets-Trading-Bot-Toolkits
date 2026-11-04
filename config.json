@@ -46,6 +46,18 @@
     "domain_name": "Polymarket CTF Exchange",
     "domain_version": "1"
   },
+  "strategies": {
+    "_comment": "Applies to every strategy except copy trading. Limits are in USD and are hard caps.",
+    "poll_secs": 5,
+    "rescan_secs": 300,
+    "quote_ttl_secs": 300,
+    "limits": {
+      "max_order_usd": 5.0,
+      "max_market_usd": 25.0,
+      "max_total_usd": 100.0,
+      "max_loss_usd": 25.0
+    }
+  },
   "predict_fun": {
     "network": "testnet",
     "wallets_to_track": []

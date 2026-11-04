@@ -113,7 +113,7 @@ Not sure which strategy fits your venue, capital size, or risk budget? Ask.
 
 Ten strategies, one execution core: a venue adapter, an order executor with EIP-712 signing and a real dry-run path, hard spending limits, a risk guard, and position tracking. Pick the edge that fits your thesis — the infrastructure underneath is shared.
 
-> ⚠️ **Status: all ten run on [Predict.fun](#venue-coverage) in dry run against live books. No live order has been sent through any of them yet**, and none has a track record. Dry-run P&L checks the plumbing and isn't a forecast. Stay in dry run until you've proven a strategy yourself with a small amount.
+> ⚠️ **Status: all ten run on [Predict.fun](#venue-coverage) in dry run against live books. No live order has been sent through any of them yet**, and none has a track record. Dry-run P&L checks the plumbing and isn't a forecast. Stay in dry run until you've proven a strategy yourself with a small amount, and read [Going live](docs/LIVE-TRADING.md) first.
 
 > 📦 Every bot runs on the shared engine and [safety layer](#safety). The [per-venue repos](#venue-coverage) hold venue metadata — the trading code is here.
 
@@ -181,12 +181,12 @@ per-venue repos hold venue metadata, so clone this repo for the trading code.
 | Venue | Type | Strategies |
 |---|---|---|
 | [**Predict.fun**](https://github.com/tarpboi/Predict.fun) | Decentralized (BNB Chain / USDT) | All ten — dry-run tested on testnet and mainnet books; live orders not yet tested (Cross-Market reports gaps only) |
-| [**Polymarket**](https://github.com/tarpboi/Polymarket) | Decentralized (Polygon / USDC) | Copy Trading — order path still signs the V1 format and needs updating for CLOB V2 |
+| [**Polymarket**](https://github.com/tarpboi/Polymarket) | Decentralized (Polygon / pUSD) | Copy Trading — updated for CLOB V2 and dry-run tested on real fills; live orders not yet tested |
 
 > **Predict.fun** settles in USDT on BNB Chain and uses the same CTF-exchange contract design as Polymarket, with short crypto rounds. Signatures and limit-order amounts match Predict's official SDK byte for byte, and every strategy has run in dry run against the testnet API, and all but Copy Trading against mainnet books as well. **Live order submission hasn't been tested yet**, so stay in dry run until you've proven it with a small amount.
 
 ```bash
-# Build from source: this isn't in a release yet. Defaults to testnet and dry run.
+# Defaults to testnet and dry run.
 cargo run --release -- --venue predict-fun check-venue
 
 # Any of: copy-trading btc-arb cross-arb directional-arb spread-farming sports
@@ -197,6 +197,15 @@ cargo run --release -- --venue predict-fun run market-making
 Copy Trading needs a wallet in `predict_fun.wallets_to_track` in `config.json`. Tune each strategy and its hard limits under `strategies` there. The `filters` allowlist applies to these bots too, and the shipped one (`Politics`, `Sports`, `Crypto`) leaves out most of Predict's markets, so review it first. BTC rounds settle on Binance's top of book: where Binance isn't reachable, that bot uses a Coinbase price and stays on paper.
 
 Mainnet needs `"network": "mainnet"` in `config.json` and an API key from Predict. Before trading live, set approvals once with the SDK's `setApprovals`, use a dedicated wallet, and read Predict's [Terms of Service](https://docs.predict.fun/terms-of-service): they bar several jurisdictions, including the US and UK, and signing in accepts them. The bots don't redeem winnings, so redeem them on Predict. In October 2026 Predict reported about 400,000 USDT in unauthorized wallet transfers; the [venue repo](https://github.com/tarpboi/Predict.fun) has details.
+
+> **Polymarket** Copy Trading follows a wallet's on-chain fills and signs CLOB V2 orders. Signatures and API auth match Polymarket's official SDK on every wallet type, and in dry run it has read real V2 fills and signed real-book orders. **Live order submission hasn't been tested yet.** Trading needs pUSD, and Polymarket rejects orders from restricted regions, including the US and UK.
+
+```bash
+cargo run --release -- --venue polymarket check-venue
+cargo run --release -- --venue polymarket run copy-trading
+```
+
+**Ready to trade real money?** Follow [Going live](docs/LIVE-TRADING.md) for approvals, limits, the two flags to change, and how to stop.
 
 ### Traditional / Regulated
 
@@ -268,6 +277,7 @@ The circuit breaker fires when consecutive large trades exceed the configured th
 | Stage | Action |
 |-------|--------|
 | Initial setup | Run with `enable_trading: false` for a full session |
+| Before real orders | Work through [Going live](docs/LIVE-TRADING.md) |
 | First real trades | Keep `copy_percentage` at 5–10% until you trust the signal |
 | Ongoing | Watch circuit breaker trips — they surface execution anomalies |
 | Production | Dedicated wallet with only the capital you intend to deploy |

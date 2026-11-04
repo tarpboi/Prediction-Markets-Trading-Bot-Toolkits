@@ -138,6 +138,18 @@ async fn monitor_once(
                     "exit order filled nothing; will retry next tick"
                 );
             }
+            // Part of it sold: keep watching what's left.
+            Ok(ticket) if ticket.filled_shares.is_some_and(|f| f > 0.0 && f < pos.shares - 1e-6) => {
+                let filled = ticket.filled_shares.unwrap_or(0.0);
+                warn!(
+                    order_id = ?ticket.order_id,
+                    token = %pos.token_id,
+                    filled,
+                    held = pos.shares,
+                    "exit filled in part; will retry the rest next tick"
+                );
+                positions.reduce(&pos.token_id, filled);
+            }
             Ok(ticket) => {
                 info!(
                     order_id = ?ticket.order_id,
@@ -222,7 +234,7 @@ mod tests {
 
     #[tokio::test]
     async fn exit_with_unknown_fill_closes_the_position() {
-        // How Polymarket behaves: it doesn't report fills synchronously.
+        // A delayed Polymarket order that hasn't settled by the last poll.
         let venue = FakeVenue { order_id: Some("1"), filled: None };
         assert!(!still_open_after_exit(venue).await);
     }
@@ -237,6 +249,20 @@ mod tests {
     async fn exit_with_nothing_held_closes_the_position() {
         let venue = FakeVenue { order_id: None, filled: Some(0.0) };
         assert!(!still_open_after_exit(venue).await);
+    }
+
+    #[tokio::test]
+    async fn partial_exit_keeps_watching_what_is_left() {
+        let store = PositionStore::new();
+        let p = pos(0.50, 30.0, 20.0, Side::Buy);
+        store.open(p.clone());
+        let venue = FakeVenue { order_id: Some("1"), filled: Some(40.0) };
+        monitor_once(&p, &store, &venue, &FixedMid(0.80), true, 0.005, 60)
+            .await
+            .unwrap();
+        let left = store.get(&p.token_id).expect("60 shares are still held");
+        assert_eq!(left.shares, 60.0);
+        assert_eq!(left.usd_notional, 30.0);
     }
 
     fn pos(entry: f64, tp: f64, sl: f64, side: Side) -> OpenPosition {

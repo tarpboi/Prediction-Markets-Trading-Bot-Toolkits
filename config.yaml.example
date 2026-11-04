@@ -6,13 +6,16 @@ bot:
   # Your trading wallet private key — 64 hex chars, no 0x prefix.
   private_key: "0000000000000000000000000000000000000000000000000000000000000000"
 
-  # Your Polymarket proxy/funder address. Find it on polymarket.com
-  # under your profile → "Deposit" — the address USDC was sent to.
-  # Polymarket only; Predict.fun doesn't use it.
+  # Polymarket only. The address holding your funds, if it isn't private_key's own
+  # address. Leave it zero to trade from private_key's address.
   funder_address: "0x0000000000000000000000000000000000000000"
 
-  # Optional: pre-issued CLOB API credentials (L2 auth).
-  # If unset, the bot will create them on startup via the L1 EIP-712 flow.
+  # Polymarket only, and required when funder_address is set. Which kind of wallet
+  # the funder is: proxy (email login), safe (browser wallet) or deposit_wallet.
+  # signature_type: "safe"
+
+  # Optional: pre-issued CLOB API credentials (L2 auth), all three or none.
+  # If unset, a live run creates or derives them with an L1 signature on startup.
   # api_key: ""
   # api_secret: ""
   # api_passphrase: ""

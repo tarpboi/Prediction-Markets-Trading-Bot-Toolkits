@@ -4,11 +4,11 @@ use polymarket_toolkits::{
     bot::{self, BotKind},
     config::AppConfig,
     models::VenueId,
-    service::predict_fun,
+    service::{clob, predict_fun},
     ui,
 };
 use std::path::PathBuf;
-use tracing::info;
+use tracing::{info, warn};
 use tracing_subscriber::EnvFilter;
 
 #[derive(Parser, Debug)]
@@ -41,10 +41,11 @@ enum Command {
         #[arg(value_enum)]
         bot: BotKindArg,
     },
-    /// Check the Predict.fun connection without placing an order.
+    /// Check a venue's connection and signing without placing an order.
     CheckVenue {
-        /// Also sign in, proving the wallet and API key work. Signing accepts
-        /// Predict's Terms of Service, so it's opt-in.
+        /// Also sign in, proving the wallet and API key work. On Predict.fun this
+        /// accepts its Terms of Service; on Polymarket it creates or derives API
+        /// credentials and reads the balance. Either way it's opt-in.
         #[arg(long)]
         sign_in: bool,
     },
@@ -121,9 +122,19 @@ async fn main() -> Result<()> {
         "configuration loaded"
     );
 
+    if cfg.live_trading_allowed() {
+        warn!(
+            venue = ?cfg.venue,
+            "LIVE TRADING IS ON: orders use real funds. See docs/LIVE-TRADING.md"
+        );
+    }
+
     match cli.command {
         Some(Command::Run { bot: kind }) => bot::run(kind.into(), cfg).await,
-        Some(Command::CheckVenue { sign_in }) => predict_fun::check(&cfg, sign_in).await,
+        Some(Command::CheckVenue { sign_in }) => match cfg.venue {
+            VenueId::Polymarket => clob::check(&cfg, sign_in).await,
+            _ => predict_fun::check(&cfg, sign_in).await,
+        },
         Some(Command::Tui) | None => ui::run(cfg).await,
     }
 }

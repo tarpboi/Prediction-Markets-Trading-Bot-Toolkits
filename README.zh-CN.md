@@ -113,7 +113,7 @@ cargo run --release -- run copy-trading
 
 十款策略，一套执行核心：平台适配器、带 EIP-712 签名与真实空跑路径的下单执行器、硬性资金上限、风控护卫，以及持仓跟踪。挑一个匹配你判断的优势上场——底层基础设施是共享的。
 
-> ⚠️ **当前状态：全部十款均可在 [Predict.fun](#平台覆盖) 上基于实时订单簿空跑。目前还没有任何一款发送过实盘订单**，也都没有实盘战绩。空跑盈亏只用于检验流程，不代表未来收益。在你亲自用小额资金验证之前，请保持空跑。
+> ⚠️ **当前状态：全部十款均可在 [Predict.fun](#平台覆盖) 上基于实时订单簿空跑。目前还没有任何一款发送过实盘订单**，也都没有实盘战绩。空跑盈亏只用于检验流程，不代表未来收益。在你亲自用小额资金验证之前，请保持空跑，并请先阅读[实盘指南](docs/LIVE-TRADING.md)（英文）。
 
 > 📦 每款机器人都运行在共享引擎与[安全层](#安全)之上。[各平台仓库](#平台覆盖)保存的是平台元数据——交易代码在本仓库。
 
@@ -178,12 +178,12 @@ cargo run --release -- run copy-trading
 | 平台 | 类型 | 策略 |
 |---|---|---|
 | [**Predict.fun**](https://github.com/tarpboi/Predict.fun) | 去中心化（BNB Chain / USDT） | 全部十款 — 已基于测试网和主网订单簿完成空跑测试；实盘下单尚未测试（跨平台套利仅报告价差） |
-| [**Polymarket**](https://github.com/tarpboi/Polymarket) | 去中心化（Polygon / USDC） | 跟单交易 — 下单路径仍使用 V1 格式签名，需要更新以适配 CLOB V2 |
+| [**Polymarket**](https://github.com/tarpboi/Polymarket) | 去中心化（Polygon / pUSD） | 跟单交易 — 已更新至 CLOB V2，并基于真实成交完成空跑测试；实盘下单尚未测试 |
 
 > **Predict.fun** 在 BNB Chain 上以 USDT 结算，采用与 Polymarket 相同的 CTF 交易所合约设计，并提供短周期加密货币回合。签名与限价单金额均与 Predict 官方 SDK 逐字节一致，每款策略都已基于测试网 API 完成空跑，除跟单交易外也都基于主网订单簿运行过。**实盘下单尚未测试**，在用小额资金验证之前，请保持空跑。
 
 ```bash
-# 从源码构建：尚未包含在发布版本中。默认使用测试网和空跑。
+# 默认使用测试网和空跑。
 cargo run --release -- --venue predict-fun check-venue
 
 # 可选：copy-trading btc-arb cross-arb directional-arb spread-farming sports
@@ -194,6 +194,15 @@ cargo run --release -- --venue predict-fun run market-making
 跟单交易需要在 `config.json` 的 `predict_fun.wallets_to_track` 中添加钱包。各策略参数及其硬性上限位于其中的 `strategies`。`filters` 白名单同样适用于这些机器人，默认白名单（`Politics`、`Sports`、`Crypto`）会排除 Predict 的大部分市场，请先检查。BTC 回合按币安最优买卖价结算：无法访问币安时，该机器人改用 Coinbase 价格，并且只做模拟。
 
 主网需要在 `config.json` 中设置 `"network": "mainnet"`，并向 Predict 申请 API 密钥。实盘交易前，请先用 SDK 的 `setApprovals` 完成一次授权，使用专用钱包，并阅读 Predict 的[服务条款](https://docs.predict.fun/terms-of-service)：条款禁止多个司法辖区（包括美国和英国）使用，登录签名即表示接受条款。机器人不会赎回盈利，请在 Predict 上赎回。2026 年 10 月，Predict 报告了约 400,000 USDT 的未授权钱包转账，详情见[平台仓库](https://github.com/tarpboi/Predict.fun)。
+
+> **Polymarket** 跟单交易跟踪钱包的链上成交，并签署 CLOB V2 订单。签名与 API 认证在所有钱包类型上均与 Polymarket 官方 SDK 一致，空跑中已读取真实的 V2 成交，并基于真实订单簿签署订单。**实盘下单尚未测试。** 交易需要 pUSD，且 Polymarket 会拒绝来自受限地区（包括美国和英国）的订单。
+
+```bash
+cargo run --release -- --venue polymarket check-venue
+cargo run --release -- --venue polymarket run copy-trading
+```
+
+**准备投入真实资金？** 请按照[实盘指南](docs/LIVE-TRADING.md)（英文）完成授权、限额设置、两个开关的修改，并了解如何停止。
 
 ### 传统 / 合规平台
 

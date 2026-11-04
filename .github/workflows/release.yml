@@ -58,7 +58,7 @@ jobs:
           echo "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc" >> "$GITHUB_ENV"
 
       - name: Build
-        run: cargo build --release --target ${{ matrix.target }}
+        run: cargo build --release --locked --target ${{ matrix.target }}
 
       - name: Package (unix)
         if: matrix.os != 'windows-latest'
@@ -69,6 +69,7 @@ jobs:
           mkdir -p "dist/$NAME"
           cp "target/${{ matrix.target }}/release/$BIN" "dist/$NAME/"
           cp README.md LICENSE config.json config.yaml.example "dist/$NAME/"
+          mkdir -p "dist/$NAME/docs" && cp docs/LIVE-TRADING.md "dist/$NAME/docs/"
           tar -czf "dist/$NAME.tar.gz" -C dist "$NAME"
           shasum -a 256 "dist/$NAME.tar.gz" | awk '{print $1"  '"$NAME"'.tar.gz"}' > "dist/$NAME.tar.gz.sha256"
 
@@ -81,6 +82,7 @@ jobs:
           mkdir -p "dist/$NAME"
           cp "target/${{ matrix.target }}/release/$BIN.exe" "dist/$NAME/"
           cp README.md LICENSE config.json config.yaml.example "dist/$NAME/"
+          mkdir -p "dist/$NAME/docs" && cp docs/LIVE-TRADING.md "dist/$NAME/docs/"
           (cd dist && 7z a -tzip "$NAME.zip" "$NAME" >/dev/null)
           (cd dist && certutil -hashfile "$NAME.zip" SHA256 | sed -n 2p | tr -d ' \r' | awk '{print $1"  '"$NAME"'.zip"}' > "$NAME.zip.sha256")
 
@@ -121,17 +123,18 @@ jobs:
             tar -xzf polymarket-toolkits-<tag>-<target>.tar.gz
             cd polymarket-toolkits-<tag>-<target>
             cp config.yaml.example config.yaml
-            ./polymarket-toolkits run copy-trading
+            ./polymarket-toolkits --venue predict-fun run market-making
             ```
 
             Or build from source: `cargo install --git https://github.com/tarpboi/Prediction-Markets-Trading-Bot-Toolkits`
 
+            ## Status
+
+            - **Predict.fun:** all ten strategies, dry-run tested against testnet and mainnet books.
+            - **Polymarket:** Copy Trading, updated for CLOB V2. Signing matches the official SDK, and the feed has read real V2 fills in dry run.
+
+            ⚠️ **No live order has been sent through this engine on either venue**, and no strategy has a track record. Expect problems on the first real orders.
+
             ## Before you trade
 
-            Every bot ships with `enable_trading: false`. The full execution path —
-            including EIP-712 order signing — runs in dry-run until you flip it
-            yourself. Leave it off until you've watched a session end to end.
-
-            **Only Copy Trading is production-ready.** The other nine strategies are
-            scaffolded on the shared engine and marked 🚧 in the source; they start
-            and log, but do not place orders yet.
+            Every bot ships in dry run: it signs orders and sends nothing until you change two flags. Read `docs/LIVE-TRADING.md`, included in the archive, first.

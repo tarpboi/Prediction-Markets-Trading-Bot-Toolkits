@@ -1,9 +1,9 @@
 [package]
 name = "polymarket-toolkits"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 license = "MIT"
-description = "Production-grade Rust trading bots for Polymarket, Kalshi, and Limitless."
+description = "Rust trading bots for prediction markets: ten strategies on Predict.fun, Copy Trading on Polymarket. Live orders not yet tested."
 repository = "https://github.com/tarpboi/Prediction-Markets-Trading-Bot-Toolkits"
 
 [[bin]]

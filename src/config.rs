@@ -5,7 +5,7 @@
 //! - `config.yaml` — credentials (gitignored, must never be committed)
 
 use crate::models::VenueId;
-use anyhow::{Context, Result};
+use anyhow::{bail, Context, Result};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 
@@ -103,7 +103,6 @@ pub struct TradingConfig {
     /// Slippage tolerance applied to the order limit price (fractional, e.g. 0.005 = 0.5¢ at $1 scale).
     pub price_buffer: f64,
 
-    pub fee_rate_bps: u32,
     pub order_expiration_secs: u64,
 }
 
@@ -120,9 +119,31 @@ pub struct RiskConfig {
 pub struct ExchangeConfig {
     pub ctf_exchange_address: String,
     pub neg_risk_exchange_address: String,
+    /// Exchange for position-order books, which sign with domain version "3".
+    #[serde(default = "default_exchange_v3")]
+    pub exchange_v3_address: String,
     pub chain_id: u64,
     pub domain_name: String,
     pub domain_version: String,
+}
+
+fn default_exchange_v3() -> String {
+    "0xe3333700cA9d93003F00f0F71f8515005F6c00Aa".to_string()
+}
+
+impl ExchangeConfig {
+    /// The exchange addresses are also what the copy-trading feed watches, so a
+    /// config from before CLOB V2 would sign rejected orders and see no trades.
+    pub fn ensure_clob_v2(&self) -> Result<()> {
+        if self.domain_version != "2" {
+            bail!(
+                "config.json has exchange.domain_version {:?}, but Polymarket's CLOB V2 needs \"2\". \
+                 Copy the exchange block from the current config.json.",
+                self.domain_version
+            );
+        }
+        Ok(())
+    }
 }
 
 #[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq)]
@@ -534,6 +555,9 @@ pub struct Credentials {
     pub api_key: Option<String>,
     pub api_secret: Option<String>,
     pub api_passphrase: Option<String>,
+    /// Polymarket wallet type when `funder_address` isn't the signer: proxy, safe
+    /// or deposit_wallet.
+    pub signature_type: Option<String>,
     pub predict_api_key: Option<String>,
     pub predict_account: Option<String>,
 }
@@ -551,6 +575,7 @@ struct CredentialsBot {
     api_key: Option<String>,
     api_secret: Option<String>,
     api_passphrase: Option<String>,
+    signature_type: Option<String>,
     predict_api_key: Option<String>,
     predict_account: Option<String>,
 }
@@ -577,6 +602,7 @@ impl AppConfig {
                 api_key: parsed.bot.api_key,
                 api_secret: parsed.bot.api_secret,
                 api_passphrase: parsed.bot.api_passphrase,
+                signature_type: parsed.bot.signature_type,
                 predict_api_key: parsed.bot.predict_api_key,
                 predict_account: parsed.bot.predict_account,
             };
@@ -588,6 +614,18 @@ impl AppConfig {
         }
         if let Ok(addr) = std::env::var("PM_FUNDER_ADDRESS") {
             cfg.credentials.funder_address = addr;
+        }
+        if let Ok(kind) = std::env::var("PM_SIGNATURE_TYPE") {
+            cfg.credentials.signature_type = Some(kind);
+        }
+        if let Ok(key) = std::env::var("PM_API_KEY") {
+            cfg.credentials.api_key = Some(key);
+        }
+        if let Ok(secret) = std::env::var("PM_API_SECRET") {
+            cfg.credentials.api_secret = Some(secret);
+        }
+        if let Ok(passphrase) = std::env::var("PM_API_PASSPHRASE") {
+            cfg.credentials.api_passphrase = Some(passphrase);
         }
         if let Ok(key) = std::env::var("PM_PREDICT_API_KEY") {
             cfg.credentials.predict_api_key = Some(key);

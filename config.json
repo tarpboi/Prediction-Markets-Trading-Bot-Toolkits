@@ -10,8 +10,8 @@
     "data_api_base": "https://data-api.polymarket.com",
     "clob_api_base": "https://clob.polymarket.com",
     "clob_wss_url": "wss://ws-subscriptions-clob.polymarket.com/ws/market",
-    "polygon_rpc_url": "https://polygon-rpc.com",
-    "polygon_ws_url": "wss://polygon-rpc.com"
+    "polygon_rpc_url": "https://polygon.drpc.org",
+    "polygon_ws_url": "wss://polygon.drpc.org"
   },
   "strategy": {
     "copy_strategy": "PERCENTAGE",
@@ -29,7 +29,6 @@
     "rate_window_secs": 10,
     "poll_interval_secs": 5,
     "price_buffer": 0.005,
-    "fee_rate_bps": 0,
     "order_expiration_secs": 60
   },
   "risk": {
@@ -40,11 +39,12 @@
     "trip_duration_secs": 120
   },
   "exchange": {
-    "ctf_exchange_address": "0x4bFb41d5B3570DeFd03C39a9A4D8dE6Bd8B8982E",
-    "neg_risk_exchange_address": "0xC5d563A36AE78145C45a50134d48A1215220f80a",
+    "ctf_exchange_address": "0xE111180000d2663C0091e4f400237545B87B996B",
+    "neg_risk_exchange_address": "0xe2222d279d744050d28e00520010520000310F59",
+    "exchange_v3_address": "0xe3333700cA9d93003F00f0F71f8515005F6c00Aa",
     "chain_id": 137,
     "domain_name": "Polymarket CTF Exchange",
-    "domain_version": "1"
+    "domain_version": "2"
   },
   "strategies": {
     "_comment": "Applies to every strategy except copy trading. Limits are in USD and are hard caps.",

@@ -5,7 +5,7 @@
 //! - [`market_cache`]     — slug ↔ CLOB token-id ↔ category/tags resolution
 //! - [`onchain`]          — Polygon WebSocket subscription
 //! - [`parse`]            — ABI log decoding for Polymarket exchange events
-//! - [`clob`]             — Polymarket CLOB v2 client: EIP-712 signing, order POST
+//! - [`clob`]             — Polymarket CLOB V2 client: EIP-712 signing, auth, order POST
 //! - [`order_executor`]   — applies sizing, eligibility, exposure, risk, and dispatch
 //! - [`eligibility`]      — allowlist/blocklist filter for slugs, categories, tags
 //! - [`position_store`]   — open-position tracking + exposure totals

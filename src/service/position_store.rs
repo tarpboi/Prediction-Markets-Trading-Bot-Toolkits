@@ -62,6 +62,17 @@ impl PositionStore {
         self.inner.write().remove(token_id)
     }
 
+    /// Take `shares` off a position after a partial exit.
+    pub fn reduce(&self, token_id: &str, shares: f64) {
+        if let Some(pos) = self.inner.write().get_mut(token_id) {
+            let left = (pos.shares - shares).max(0.0);
+            if pos.shares > 0.0 {
+                pos.usd_notional *= left / pos.shares;
+            }
+            pos.shares = left;
+        }
+    }
+
     pub fn get(&self, token_id: &str) -> Option<OpenPosition> {
         self.inner.read().get(token_id).cloned()
     }

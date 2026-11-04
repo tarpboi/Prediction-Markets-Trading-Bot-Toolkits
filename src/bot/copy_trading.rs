@@ -60,6 +60,7 @@ pub async fn run(cfg: AppConfig) -> Result<()> {
 }
 
 async fn run_polymarket(cfg: AppConfig) -> Result<()> {
+    cfg.exchange.ensure_clob_v2()?;
     let whale = cfg
         .bot
         .wallets_to_track
@@ -83,7 +84,14 @@ async fn run_polymarket(cfg: AppConfig) -> Result<()> {
     let markets = MarketCache::new(http.clone(), cfg.site.gamma_api_base.clone());
     let positions = PositionStore::new();
 
-    let venue = ClobClient::new(&cfg).map(|c| Arc::new(c) as Arc<dyn OrderVenue>);
+    let client = ClobClient::new(&cfg);
+    if cfg.live_trading_allowed() {
+        match &client {
+            Ok(client) => client.preflight().await?,
+            Err(e) => bail!("live trading needs a working wallet config: {e:#}"),
+        }
+    }
+    let venue = client.map(|c| Arc::new(c) as Arc<dyn OrderVenue>);
     let executor = OrderExecutor::new(
         cfg.clone(),
         venue,

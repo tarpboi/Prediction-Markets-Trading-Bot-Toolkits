@@ -181,7 +181,7 @@ per-venue repos hold venue metadata, so clone this repo for the trading code.
 | Venue | Type | Strategies |
 |---|---|---|
 | [**Predict.fun**](https://github.com/tarpboi/Predict.fun) | Decentralized (BNB Chain / USDT) | All ten — dry-run tested on testnet and mainnet books; live orders not yet tested (Cross-Market reports gaps only) |
-| [**Polymarket**](https://github.com/tarpboi/Polymarket) | Decentralized (Polygon / USDC) | Copy Trading — order path predates CLOB V2 and needs re-checking |
+| [**Polymarket**](https://github.com/tarpboi/Polymarket) | Decentralized (Polygon / USDC) | Copy Trading — order path still signs the V1 format and needs updating for CLOB V2 |
 
 > **Predict.fun** settles in USDT on BNB Chain and uses the same CTF-exchange contract design as Polymarket, with short crypto rounds. Signatures and limit-order amounts match Predict's official SDK byte for byte, and every strategy has run in dry run against the testnet API, and all but Copy Trading against mainnet books as well. **Live order submission hasn't been tested yet**, so stay in dry run until you've proven it with a small amount.
 

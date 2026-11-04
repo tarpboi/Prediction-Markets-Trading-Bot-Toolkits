@@ -178,7 +178,7 @@ cargo run --release -- run copy-trading
 | 平台 | 类型 | 策略 |
 |---|---|---|
 | [**Predict.fun**](https://github.com/tarpboi/Predict.fun) | 去中心化（BNB Chain / USDT） | 全部十款 — 已基于测试网和主网订单簿完成空跑测试；实盘下单尚未测试（跨平台套利仅报告价差） |
-| [**Polymarket**](https://github.com/tarpboi/Polymarket) | 去中心化（Polygon / USDC） | 跟单交易 — 下单路径早于 CLOB V2，需要重新核实 |
+| [**Polymarket**](https://github.com/tarpboi/Polymarket) | 去中心化（Polygon / USDC） | 跟单交易 — 下单路径仍使用 V1 格式签名，需要更新以适配 CLOB V2 |
 
 > **Predict.fun** 在 BNB Chain 上以 USDT 结算，采用与 Polymarket 相同的 CTF 交易所合约设计，并提供短周期加密货币回合。签名与限价单金额均与 Predict 官方 SDK 逐字节一致，每款策略都已基于测试网 API 完成空跑，除跟单交易外也都基于主网订单簿运行过。**实盘下单尚未测试**，在用小额资金验证之前，请保持空跑。
 

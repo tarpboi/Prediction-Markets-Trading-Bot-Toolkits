@@ -7,8 +7,8 @@
 //! trusting a link: differing resolution sources are how a hedge becomes two losses.
 //!
 //! **This bot reports opportunities and refuses to trade live.** A live version has
-//! to send both legs, and the engine's Polymarket order path predates Polymarket's
-//! CLOB V2 and hasn't been shown to work against it. One filled leg without the other
+//! to send both legs, and the engine's Polymarket order path still signs the V1 format,
+//! which hasn't been shown to work against Polymarket's CLOB V2. One filled leg without the other
 //! isn't arbitrage, it's a naked position, so this stays read-only until both legs
 //! are proven. The Kalshi leg is unbuilt; Predict links almost no markets to it.
 

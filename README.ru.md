@@ -2,8 +2,9 @@
 
 <div align="center">
 
-<img width="820" alt="Polymarket Toolkits TUI" src="https://github.com/user-attachments/assets/b6c51ba1-14c6-4582-858c-e9441516dd1d" />
-<img width="820" alt="Панель Prediction Market Toolkits" src="https://github.com/user-attachments/assets/2ae5783d-be8e-458d-8da4-1ff82aada3db" />
+<a href="https://pnlpro.fit"><img width="820" alt="Промо pnlpro.fit: бесплатная торговая энциклопедия на 9 языках и боты с открытым кодом" src="docs/promo/pnlpro-promo.webp" /></a>
+
+<sub><a href="docs/promo/pnlpro-promo.mp4">▶ Смотреть 26-секундный обзор (MP4)</a></sub>
 
 ### Торговая инфраструктура для рынков предсказаний, не зависящая от площадки — любой рынок со стаканом заявок
 

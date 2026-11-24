@@ -2,8 +2,9 @@
 
 <div align="center">
 
-<img width="820" alt="Polymarket 工具包 TUI" src="https://github.com/user-attachments/assets/b6c51ba1-14c6-4582-858c-e9441516dd1d" />
-<img width="820" alt="预测市场工具包 仪表盘" src="https://github.com/user-attachments/assets/2ae5783d-be8e-458d-8da4-1ff82aada3db" />
+<a href="https://pnlpro.fit"><img width="820" alt="pnlpro.fit 宣传视频：9 种语言的免费交易百科与开源机器人" src="docs/promo/pnlpro-promo.webp" /></a>
+
+<sub><a href="docs/promo/pnlpro-promo.mp4">▶ 观看 26 秒导览（MP4）</a></sub>
 
 ### 平台无关的预测市场交易基础设施 — 任何带订单簿的市场
 

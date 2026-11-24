@@ -2,8 +2,9 @@
 
 <div align="center">
 
-<img width="820" alt="Polymarket Toolkits TUI" src="https://github.com/user-attachments/assets/b6c51ba1-14c6-4582-858c-e9441516dd1d" />
-<img width="820" alt="Prediction Market Toolkits dashboard" src="https://github.com/user-attachments/assets/2ae5783d-be8e-458d-8da4-1ff82aada3db" />
+<a href="https://pnlpro.fit"><img width="820" alt="pnlpro.fit promo: free trading encyclopedia in 9 languages and open-source bots" src="docs/promo/pnlpro-promo.webp" /></a>
+
+<sub><a href="docs/promo/pnlpro-promo.mp4">▶ Watch the 26-second tour (MP4)</a></sub>
 
 ### Venue-agnostic prediction-market trading infrastructure — any market with an order book
 

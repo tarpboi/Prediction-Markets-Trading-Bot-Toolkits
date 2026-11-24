@@ -23,11 +23,31 @@
 &nbsp;
 [![PnL Profit 已上线](https://img.shields.io/badge/🚀_PnL_Profit-访问_pnlpro.fit-16a34a?style=for-the-badge)](https://pnlpro.fit)
 
-**[快速开始](#-快速开始) • [策略](#策略) • [托管服务](#-托管与跟单交易当前已关闭) • [平台覆盖](#平台覆盖) • [引擎](#引擎) • [安全](#安全) • [联系方式](#联系方式)**
+**[网站](#-pnl-profit--官方网站) • [快速开始](#-快速开始) • [策略](#策略) • [托管服务](#-托管与跟单交易当前已关闭) • [平台覆盖](#平台覆盖) • [引擎](#引擎) • [安全](#安全) • [联系方式](#联系方式)**
 
 **🌐 Language / 语言 / Язык:** [English](README.md) • [简体中文](#预测市场工具包) • [Русский](README.ru.md)
 
 </div>
+
+---
+
+## 🌐 PnL Profit — 官方网站
+
+[**pnlpro.fit**](https://pnlpro.fit) 是本项目的主页：免费的**交易百科**（156 篇深度指南、493 个术语，支持 9 种语言），讲解每个市场如何运作，并展示全部开源交易机器人。
+
+<table>
+  <tr><td colspan="2"><a href="https://pnlpro.fit"><img src="docs/screenshots/pnlpro-home.png" alt="pnlpro.fit 首页" /></a></td></tr>
+  <tr>
+    <td width="50%"><a href="https://pnlpro.fit/zh/encyclopedia/"><img src="docs/screenshots/pnlpro-encyclopedia.png" alt="交易百科首页" /></a></td>
+    <td width="50%"><a href="https://pnlpro.fit/zh/encyclopedia/crypto/funding-rates/"><img src="docs/screenshots/pnlpro-article.png" alt="百科文章：资金费率" /></a></td>
+  </tr>
+</table>
+
+<p align="center">
+  <img src="docs/screenshots/pnlpro-mobile.png" alt="手机上的 pnlpro.fit" width="260" />
+  &nbsp;&nbsp;
+  <img src="docs/screenshots/pnlpro-mobile-menu.png" alt="手机导航菜单" width="260" />
+</p>
 
 ---
 

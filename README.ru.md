@@ -23,11 +23,31 @@
 &nbsp;
 [![PnL Profit — вживую](https://img.shields.io/badge/🚀_PnL_Profit-На_pnlpro.fit-16a34a?style=for-the-badge)](https://pnlpro.fit)
 
-**[Быстрый старт](#-быстрый-старт) • [Стратегии](#стратегии) • [Сервис](#-управляемый-сервис-и-копи-трейдинг--сейчас-закрыт) • [Покрытие площадок](#покрытие-площадок) • [Движок](#движок) • [Безопасность](#безопасность) • [Контакты](#контакты)**
+**[Сайт](#-pnl-profit--сайт) • [Быстрый старт](#-быстрый-старт) • [Стратегии](#стратегии) • [Сервис](#-управляемый-сервис-и-копи-трейдинг--сейчас-закрыт) • [Покрытие площадок](#покрытие-площадок) • [Движок](#движок) • [Безопасность](#безопасность) • [Контакты](#контакты)**
 
 **🌐 Language / 语言 / Язык:** [English](README.md) • [简体中文](README.zh-CN.md) • [Русский](#prediction-market-toolkits)
 
 </div>
+
+---
+
+## 🌐 PnL Profit — сайт
+
+[**pnlpro.fit**](https://pnlpro.fit) — домашняя страница проекта: бесплатная **торговая энциклопедия** (156 подробных руководств и глоссарий из 493 терминов на 9 языках), которая объясняет, как устроен каждый рынок, и полный набор ботов с открытым кодом.
+
+<table>
+  <tr><td colspan="2"><a href="https://pnlpro.fit"><img src="docs/screenshots/pnlpro-home.png" alt="Главная страница pnlpro.fit" /></a></td></tr>
+  <tr>
+    <td width="50%"><a href="https://pnlpro.fit/ru/encyclopedia/"><img src="docs/screenshots/pnlpro-encyclopedia.png" alt="Главная энциклопедии" /></a></td>
+    <td width="50%"><a href="https://pnlpro.fit/ru/encyclopedia/crypto/funding-rates/"><img src="docs/screenshots/pnlpro-article.png" alt="Статья энциклопедии: ставка финансирования" /></a></td>
+  </tr>
+</table>
+
+<p align="center">
+  <img src="docs/screenshots/pnlpro-mobile.png" alt="pnlpro.fit на телефоне" width="260" />
+  &nbsp;&nbsp;
+  <img src="docs/screenshots/pnlpro-mobile-menu.png" alt="Мобильное меню" width="260" />
+</p>
 
 ---
 

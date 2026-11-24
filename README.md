@@ -23,11 +23,31 @@
 &nbsp;
 [![PnL Profit — live](https://img.shields.io/badge/🚀_PnL_Profit-Live_at_pnlpro.fit-16a34a?style=for-the-badge)](https://pnlpro.fit)
 
-**[Quick Start](#-quick-start) • [Strategies](#strategies) • [Managed Service](#-managed--copy-trading--currently-closed) • [Venue Coverage](#venue-coverage) • [Engine](#engine) • [Safety](#safety) • [Contact](#contact)**
+**[Website](#-pnl-profit--the-website) • [Quick Start](#-quick-start) • [Strategies](#strategies) • [Managed Service](#-managed--copy-trading--currently-closed) • [Venue Coverage](#venue-coverage) • [Engine](#engine) • [Safety](#safety) • [Contact](#contact)**
 
 **🌐 Language / 语言 / Язык:** [English](#prediction-market-toolkits) • [简体中文](README.zh-CN.md) • [Русский](README.ru.md)
 
 </div>
+
+---
+
+## 🌐 PnL Profit — the website
+
+[**pnlpro.fit**](https://pnlpro.fit) is the project's home: a free **Trading Encyclopedia** (156 in-depth guides and a 493-term glossary in 9 languages) that teaches how every market works, plus the full lineup of open-source bots.
+
+<table>
+  <tr><td colspan="2"><a href="https://pnlpro.fit"><img src="docs/screenshots/pnlpro-home.png" alt="pnlpro.fit homepage: learn to trade any market, then automate it safely" /></a></td></tr>
+  <tr>
+    <td width="50%"><a href="https://pnlpro.fit/encyclopedia/"><img src="docs/screenshots/pnlpro-encyclopedia.png" alt="Trading Encyclopedia home with 16 topics" /></a></td>
+    <td width="50%"><a href="https://pnlpro.fit/encyclopedia/crypto/funding-rates/"><img src="docs/screenshots/pnlpro-article.png" alt="Encyclopedia article: Funding Rates" /></a></td>
+  </tr>
+</table>
+
+<p align="center">
+  <img src="docs/screenshots/pnlpro-mobile.png" alt="pnlpro.fit on a phone" width="260" />
+  &nbsp;&nbsp;
+  <img src="docs/screenshots/pnlpro-mobile-menu.png" alt="Mobile navigation menu" width="260" />
+</p>
 
 ---
 
